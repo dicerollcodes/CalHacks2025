@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaPaperPlane, FaLock } from 'react-icons/fa'
 import { getConversations, getMessages, sendMessage, getPublicKey, updatePublicKey } from '../services/api'
 import { getOrCreateKeyPair, getPublicKeyString, encryptMessage, decryptMessage } from '../utils/encryption'
+import { getUser, isAuthenticated } from '../services/auth'
 
 function Messages() {
-  const [searchParams] = useSearchParams()
-  const userId = searchParams.get('userId')
+  const navigate = useNavigate()
+  const loggedInUser = getUser()
+  const userId = loggedInUser?.username
   
   const [conversations, setConversations] = useState([])
   const [selectedConversation, setSelectedConversation] = useState(null)
@@ -17,34 +19,36 @@ function Messages() {
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
-    if (!userId) {
-      alert('Please add ?userId=YOUR_ID to the URL')
+    // Check authentication
+    if (!isAuthenticated() || !userId) {
+      alert('Please log in to view messages')
+      navigate('/auth')
       return
     }
-    
+
     initializeEncryption()
     loadConversations()
-    
-    // Check if there's a pending message from conversation starters
+  }, [userId, navigate])
+
+  useEffect(() => {
+    // Handle pending message from conversation starters
     const pendingMessage = localStorage.getItem('pendingMessage')
     const recipientId = localStorage.getItem('messageRecipient')
-    
+
     if (pendingMessage) {
       setMessageInput(pendingMessage)
       localStorage.removeItem('pendingMessage')
     }
-    
-    if (recipientId) {
+
+    if (recipientId && conversations.length > 0) {
       // Find and select this conversation
-      setTimeout(() => {
-        const conv = conversations.find(c => c.userId === recipientId)
-        if (conv) {
-          handleSelectConversation(conv)
-        }
-      }, 500)
+      const conv = conversations.find(c => c.userId === recipientId)
+      if (conv) {
+        handleSelectConversation(conv)
+      }
       localStorage.removeItem('messageRecipient')
     }
-  }, [userId])
+  }, [conversations])
 
   useEffect(() => {
     scrollToBottom()
@@ -187,10 +191,18 @@ function Messages() {
     return date.toLocaleDateString()
   }
 
-  if (!userId) {
+  if (!isAuthenticated() || !userId) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white/50">Please add ?userId=YOUR_ID to the URL</div>
+        <div className="text-center">
+          <p className="text-white/50 mb-4">Please log in to view messages</p>
+          <button
+            onClick={() => navigate('/auth')}
+            className="px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-all"
+          >
+            Log In
+          </button>
+        </div>
       </div>
     )
   }
@@ -200,14 +212,17 @@ function Messages() {
       {/* Header with back button */}
       <header className="border-b border-white/10 bg-black/50 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Link 
-            to="/"
+          <Link
+            to={`/user/${userId}`}
             className="p-2 hover:bg-white/10 rounded-full transition-colors"
           >
             <FaArrowLeft className="text-white/70" />
           </Link>
-          <h1 className="text-xl font-bold">Messages</h1>
-          <div className="ml-auto flex items-center gap-2 text-xs text-white/40">
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">Messages</h1>
+            <p className="text-xs text-white/40">Logged in as @{userId}</p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-white/40">
             <FaLock />
             <span>End-to-end encrypted</span>
           </div>

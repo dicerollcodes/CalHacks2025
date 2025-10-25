@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams, Link } from 'react-router-dom'
-import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin, FaComments } from 'react-icons/fa'
+import { useParams } from 'react-router-dom'
+import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
 import { getUser, calculateMatch } from '../services/api'
 import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
 import IceCube from '../components/IceCube'
@@ -32,6 +32,7 @@ function UserProfileNew() {
   const [saving, setSaving] = useState(false)
   const [editingSocialPlatform, setEditingSocialPlatform] = useState(null)
   const [socialInput, setSocialInput] = useState('')
+  const [customMessage, setCustomMessage] = useState('')
 
   const availableSocials = [
     { id: 'instagram', name: 'Instagram', icon: '📷', placeholder: '@username' },
@@ -751,6 +752,44 @@ function UserProfileNew() {
                       </p>
                     </button>
                   ))}
+
+                  {/* Custom Message Input */}
+                  <div
+                    className="relative overflow-hidden rounded-2xl p-4"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(40px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      boxShadow: `
+                        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.05)
+                      `
+                    }}
+                  >
+                    <p className="text-white/60 text-xs mb-2 uppercase tracking-wider">Or write your own:</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={customMessage}
+                        onChange={(e) => setCustomMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && customMessage.trim()) {
+                            handleConversationStarterClick(customMessage)
+                          }
+                        }}
+                        placeholder="Type your message..."
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+                      />
+                      <button
+                        onClick={() => customMessage.trim() && handleConversationStarterClick(customMessage)}
+                        disabled={!customMessage.trim()}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:cursor-not-allowed border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -823,21 +862,22 @@ function generateConversationStarters(sharedInterests) {
   ];
 }
 
-function handleConversationStarterClick(message) {
-  // Store the message in localStorage and navigate to messages page
-  localStorage.setItem('pendingMessage', message);
-  
-  // Get current user ID and target user ID from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const viewerId = urlParams.get('viewer');
-  const targetId = window.location.pathname.split('/').pop();
-  
-  if (viewerId && targetId) {
-    localStorage.setItem('messageRecipient', targetId);
-    window.location.href = `/messages?userId=${viewerId}`;
-  } else {
-    alert('Please add ?viewer=YOUR_ID to the URL to send messages');
+  function handleConversationStarterClick(message) {
+    if (!isAuthenticated()) {
+      alert('Please log in to send messages');
+      window.location.href = '/auth';
+      return;
+    }
+
+    // Store the message in localStorage and navigate to messages page
+    localStorage.setItem('pendingMessage', message);
+    localStorage.setItem('messageRecipient', username);
+
+    // Clear custom message input
+    setCustomMessage('');
+
+    // Navigate to messages page
+    window.location.href = '/messages';
   }
-}
 
 export default UserProfileNew

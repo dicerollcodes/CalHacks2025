@@ -45,6 +45,12 @@ export default function Header() {
               >
                 My Profile
               </Link>
+              <Link
+                to="/messages"
+                className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-2"
+              >
+                💬 Messages
+              </Link>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-full transition-all text-white text-sm font-medium"
