@@ -144,12 +144,13 @@ function RotatingCube({ onShatter, shattering }) {
     >
       <RoundedBox
         ref={meshRef}
-        args={[2.8, 2.8, 2.8]}
-        radius={0.2}
+        args={[3.4, 3.4, 3.4]}
+        radius={0.25}
         smoothness={4}
         onClick={onShatter}
         scale={scale}
         position={[0, 0.5, 0]}
+        castShadow
       >
         <MeshTransmissionMaterial
           transmission={1.0}
@@ -186,6 +187,21 @@ export default function IceCube({ onShatter, disabled }) {
 
   return (
     <div className="w-full cursor-pointer flex items-center justify-center" style={{ overflow: 'visible', height: '200px', position: 'relative' }}>
+      {/* White circular glow background - outside Canvas */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '180px',
+          height: '180px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+      />
       <Canvas
         camera={{ position: [0, 0, 5.5], fov: 70, near: 0.1, far: 100 }}
         style={{
@@ -198,8 +214,10 @@ export default function IceCube({ onShatter, disabled }) {
           left: 0,
           right: 0,
           bottom: 0,
-          pointerEvents: 'auto'
+          pointerEvents: 'auto',
+          zIndex: 2
         }}
+        shadows
         gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true }}
       >
 
@@ -208,7 +226,7 @@ export default function IceCube({ onShatter, disabled }) {
 
         {/* SHIMMER LIGHT - Strong corner light for ice sparkle */}
         <pointLight position={[5, 5, 5]} intensity={100} color="#ffffff" castShadow />
-        <directionalLight position={[4, 4, 4]} intensity={50} color="#ffffff" />
+        <directionalLight position={[4, 4, 4]} intensity={50} color="#ffffff" castShadow />
 
         {/* Key light - bright from top */}
         <directionalLight position={[3, 4, 3]} intensity={100} color="#ffffff" />
