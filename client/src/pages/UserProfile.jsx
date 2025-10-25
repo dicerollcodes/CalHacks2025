@@ -12,11 +12,32 @@ function UserProfile() {
   const [loading, setLoading] = useState(true)
   const [matchData, setMatchData] = useState(null)
   const [calculating, setCalculating] = useState(false)
+  const [loadingStep, setLoadingStep] = useState(0)
   const [error, setError] = useState(null)
+
+  const loadingMessages = [
+    '🧊 Analyzing interests...',
+    '🔍 Finding connections...',
+    '✨ Calculating compatibility...',
+    '💬 Generating conversation starters...',
+    '🎉 Almost there...'
+  ]
 
   useEffect(() => {
     loadUser()
   }, [shareableId])
+
+  // Cycle through loading messages while calculating
+  useEffect(() => {
+    if (!calculating) return
+
+    setLoadingStep(0)
+    const interval = setInterval(() => {
+      setLoadingStep(prev => (prev + 1) % loadingMessages.length)
+    }, 600) // Change message every 600ms
+
+    return () => clearInterval(interval)
+  }, [calculating])
 
   async function loadUser() {
     try {
@@ -38,6 +59,7 @@ function UserProfile() {
 
     try {
       setCalculating(true)
+      setLoadingStep(0)
       const response = await calculateMatch(viewerId, shareableId)
       setMatchData(response.match)
     } catch (err) {
@@ -111,17 +133,36 @@ function UserProfile() {
             )}
 
             {/* Shatter Button */}
-            {!matchData && (
+            {!matchData && !calculating && (
               <button
                 onClick={handleShatterIce}
-                disabled={calculating}
-                className="px-8 py-4 bg-gradient-to-r from-ice-500 to-ice-600 text-white text-xl font-bold rounded-full shadow-lg hover:from-ice-600 hover:to-ice-700 transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-4 bg-gradient-to-r from-ice-500 to-ice-600 text-white text-xl font-bold rounded-full shadow-lg hover:from-ice-600 hover:to-ice-700 transform hover:scale-105 transition-all"
               >
-                {calculating ? '🧊 Shattering...' : '🧊 Shatter the Ice'}
+                🧊 Shatter the Ice
               </button>
             )}
 
-            {!viewerId && !matchData && (
+            {/* Loading Animation */}
+            {calculating && (
+              <div className="text-center">
+                <div className="inline-block animate-bounce text-6xl mb-4">🧊</div>
+                <div className="text-2xl font-bold text-ice-600 animate-pulse">
+                  {loadingMessages[loadingStep]}
+                </div>
+                <div className="mt-4 flex justify-center gap-2">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        i === loadingStep ? 'bg-ice-600 scale-150' : 'bg-ice-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!viewerId && !matchData && !calculating && (
               <p className="text-sm text-gray-500 mt-4">
                 Add ?viewer=YOUR_ID to the URL to see your compatibility!
               </p>

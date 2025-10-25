@@ -1,11 +1,13 @@
 import dotenv from 'dotenv';
+
+// Load environment variables FIRST
+dotenv.config();
+
 import mongoose from 'mongoose';
 import School from '../models/School.js';
 import User from '../models/User.js';
 import { connectDB } from '../config/database.js';
 import { generateShareableId } from './helpers.js';
-
-dotenv.config();
 
 const schools = [
   { name: 'UC Berkeley', domain: 'berkeley.edu' },

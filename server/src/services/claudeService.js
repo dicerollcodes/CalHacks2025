@@ -1,30 +1,47 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Lazy-load the Anthropic client to ensure API key is loaded
+let anthropic = null;
+
+function getAnthropicClient() {
+  if (!anthropic) {
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return anthropic;
+}
 
 // Cache for semantic similarity results to reduce API calls
 const similarityCache = new Map();
 
 /**
- * Calculate semantic similarity between two lists of interests
+ * Strip markdown code blocks from Claude's response
+ */
+function stripMarkdown(text) {
+  // Remove ```json and ``` markers
+  return text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+}
+
+/**
+ * Calculate semantic similarity and generate conversation starters in ONE call
  * Returns a detailed analysis including:
  * - Shared interests (exact matches)
  * - Related interests (semantic similarity)
  * - Match score (0-100)
+ * - Conversation starters
  */
-export async function calculateMatch(userInterests, targetInterests) {
-  const cacheKey = JSON.stringify([userInterests.sort(), targetInterests.sort()]);
+export async function calculateMatch(userInterests, targetInterests, userName, targetName) {
+  const cacheKey = JSON.stringify([userInterests.sort(), targetInterests.sort(), userName, targetName]);
 
   if (similarityCache.has(cacheKey)) {
     return similarityCache.get(cacheKey);
   }
 
-  const prompt = `You are analyzing interest compatibility between two users.
+  const prompt = `You are analyzing interest compatibility between two college students: ${userName} and ${targetName}.
 
-User A interests: ${JSON.stringify(userInterests)}
-User B interests: ${JSON.stringify(targetInterests)}
+${userName}'s interests: ${JSON.stringify(userInterests)}
+${targetName}'s interests: ${JSON.stringify(targetInterests)}
 
 Analyze their compatibility and return a JSON object with:
 1. "sharedInterests": array of exact or very close matches
@@ -34,11 +51,16 @@ Analyze their compatibility and return a JSON object with:
    - Semantic similarity (moderate weight)
    - Niche/specific interests bonus (rare interests = stronger connection)
    - Total overlap percentage
+4. "conversationStarters": array of 3 natural, casual conversation starters that:
+   - Reference specific shared/related interests
+   - Are college-student friendly and authentic
+   - Encourage discussion, not yes/no answers
+   - Example: "I saw you're into anime too! Have you watched any of this season's shows?"
 
 Return ONLY valid JSON, no other text.`;
 
-  const message = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+  const message = await getAnthropicClient().messages.create({
+    model: 'claude-3-haiku-20240307',
     max_tokens: 2000,
     messages: [{
       role: 'user',
@@ -47,7 +69,8 @@ Return ONLY valid JSON, no other text.`;
   });
 
   const responseText = message.content[0].text;
-  const result = JSON.parse(responseText);
+  const cleanedText = stripMarkdown(responseText);
+  const result = JSON.parse(cleanedText);
 
   // Cache the result
   similarityCache.set(cacheKey, result);
@@ -74,8 +97,8 @@ Create starters that:
 
 Return as JSON array of strings: ["starter1", "starter2", "starter3"]`;
 
-  const message = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+  const message = await getAnthropicClient().messages.create({
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 1000,
     messages: [{
       role: 'user',
@@ -84,7 +107,8 @@ Return as JSON array of strings: ["starter1", "starter2", "starter3"]`;
   });
 
   const responseText = message.content[0].text;
-  return JSON.parse(responseText);
+  const cleanedText = stripMarkdown(responseText);
+  return JSON.parse(cleanedText);
 }
 
 /**

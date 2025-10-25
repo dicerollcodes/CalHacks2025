@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import UserProfile from './pages/UserProfile'
+import UserProfileNew from './pages/UserProfileNew'
 import Home from './pages/Home'
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/user/:shareableId" element={<UserProfile />} />
+        <Route path="/user/:shareableId" element={<UserProfileNew />} />
       </Routes>
     </BrowserRouter>
   )

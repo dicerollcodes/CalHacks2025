@@ -25,3 +25,31 @@ export async function generateShareableId() {
 
   return shareableId;
 }
+
+/**
+ * Normalize interests to handle typos and variations
+ * - Lowercase
+ * - Trim whitespace
+ * - Remove special characters
+ * - Sort alphabetically for consistent comparisons
+ */
+export function normalizeInterests(interests) {
+  return interests
+    .map(interest =>
+      interest
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s]/g, '') // Remove special chars
+        .replace(/\s+/g, ' ')     // Normalize whitespace
+    )
+    .filter(interest => interest.length > 0)
+    .sort();
+}
+
+/**
+ * Create a deterministic cache key from two user IDs
+ * Ensures user1-user2 matches user2-user1
+ */
+export function createMatchCacheKey(userId1, userId2) {
+  return [userId1, userId2].sort().join('-');
+}
