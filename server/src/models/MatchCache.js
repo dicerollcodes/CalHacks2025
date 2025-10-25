@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+// Define relatedInterest subdocument schema explicitly
+const relatedInterestSchema = new mongoose.Schema({
+  userInterest: { type: String, required: true },
+  targetInterest: { type: String, required: true },
+  relationship: { type: String, required: true }
+}, { _id: false });
+
 const matchCacheSchema = new mongoose.Schema({
   // Store sorted user IDs to ensure consistency (user1-user2 = user2-user1)
   userIds: {
@@ -18,11 +25,7 @@ const matchCacheSchema = new mongoose.Schema({
     required: true
   },
   sharedInterests: [String],
-  relatedInterests: [{
-    userInterest: String,
-    targetInterest: String,
-    relationship: String
-  }],
+  relatedInterests: [relatedInterestSchema],
   conversationStarters: [String],
   // Track usage
   hitCount: {
