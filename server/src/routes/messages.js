@@ -214,7 +214,7 @@ router.put('/public-key/:userId', async (req, res) => {
       return res.status(400).json({ error: 'Public key is required' });
     }
 
-    const user = await User.findOne({ shareableId: userId });
+    const user = await User.findOne({ username: userId.toLowerCase() });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -240,7 +240,7 @@ router.get('/public-key/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findOne({ shareableId: userId });
+    const user = await User.findOne({ username: userId.toLowerCase() });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

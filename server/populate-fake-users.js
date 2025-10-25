@@ -7,6 +7,17 @@ dotenv.config();
 
 const fakeUsers = [
   {
+    username: 'eddyzow',
+    email: 'eddyzow@berkeley.edu',
+    name: 'Eddy Zow',
+    avatar: '🚀',
+    interests: ['programming', 'web development', 'AI', 'hackathons', 'coffee'],
+    socials: {
+      instagram: '@eddyzow',
+      discord: 'eddyzow#0001'
+    }
+  },
+  {
     username: 'alice',
     email: 'alice@berkeley.edu',
     name: 'Alice Chen',
@@ -114,40 +125,48 @@ async function populateFakeUsers() {
       console.log('✓ Using existing UC Berkeley school');
     }
 
-    // Clear existing fake users
-    const deleteResult = await User.deleteMany({
-      username: { $in: fakeUsers.map(u => u.username) }
-    });
-    console.log(`✓ Cleared ${deleteResult.deletedCount} existing fake users\n`);
+    // Create or update users (without deleting)
+    console.log('Adding/updating users...\n');
+    let createdCount = 0;
+    let skippedCount = 0;
 
-    // Create users
-    console.log('Creating fake users...');
     for (const userData of fakeUsers) {
-      const user = await User.create({
-        username: userData.username,
-        email: userData.email,
-        emailVerified: true,
-        name: userData.name,
-        avatar: userData.avatar,
-        privateInterests: userData.interests,
-        socials: userData.socials,
-        schoolId: school._id
-      });
+      // Check if user already exists
+      const existingUser = await User.findOne({ username: userData.username });
 
-      console.log(`  ✓ Created ${user.name} (@${user.username})`);
-      console.log(`    Interests: ${user.privateInterests.join(', ')}`);
+      if (existingUser) {
+        console.log(`  ⊙ Skipped ${userData.name} (@${userData.username}) - already exists`);
+        skippedCount++;
+      } else {
+        const user = await User.create({
+          username: userData.username,
+          email: userData.email,
+          emailVerified: true,
+          name: userData.name,
+          avatar: userData.avatar,
+          privateInterests: userData.interests,
+          socials: userData.socials,
+          schoolId: school._id
+        });
+
+        console.log(`  ✓ Created ${user.name} (@${user.username})`);
+        console.log(`    Interests: ${user.privateInterests.join(', ')}`);
+        createdCount++;
+      }
     }
 
-    console.log('\n✅ Successfully populated fake users!');
-    console.log('\nTest users (login via email verification):');
+    console.log(`\n✅ Done! Created ${createdCount} new users, skipped ${skippedCount} existing users`);
+
+    console.log('\n💡 All test users (login via email verification):');
     fakeUsers.forEach(u => {
       console.log(`  • ${u.email} (@${u.username})`);
     });
 
-    console.log('\n💡 Try matching:');
+    console.log('\n💡 Good matches to try:');
+    console.log('  • eddyzow & alice (programming & web dev)');
+    console.log('  • eddyzow & bob (AI & hackathons)');
     console.log('  • alice & bob (programming/coding should match perfectly)');
     console.log('  • charlie & diana (League/Valorant should be related)');
-    console.log('  • evan & fiona (different interests, low match)');
 
   } catch (error) {
     console.error('Failed to populate users:', error);
