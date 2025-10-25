@@ -330,6 +330,24 @@ function UserProfileNew() {
     )
   }
 
+  function handleConversationStarterClick(message) {
+    if (!isAuthenticated()) {
+      alert('Please log in to send messages');
+      window.location.href = '/auth';
+      return;
+    }
+
+    // Store the message in localStorage and navigate to messages page
+    localStorage.setItem('pendingMessage', message);
+    localStorage.setItem('messageRecipient', username);
+
+    // Clear custom message input
+    setCustomMessage('');
+
+    // Navigate to messages page
+    window.location.href = '/messages';
+  }
+
   if (error || (!loading && !user)) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
@@ -861,23 +879,5 @@ function generateConversationStarters(sharedInterests) {
     `I'm always looking to connect with people who are into ${interest1}. Want to chat about it?`
   ];
 }
-
-  function handleConversationStarterClick(message) {
-    if (!isAuthenticated()) {
-      alert('Please log in to send messages');
-      window.location.href = '/auth';
-      return;
-    }
-
-    // Store the message in localStorage and navigate to messages page
-    localStorage.setItem('pendingMessage', message);
-    localStorage.setItem('messageRecipient', username);
-
-    // Clear custom message input
-    setCustomMessage('');
-
-    // Navigate to messages page
-    window.location.href = '/messages';
-  }
 
 export default UserProfileNew
