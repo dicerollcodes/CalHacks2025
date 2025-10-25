@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
-import { getUser, calculateMatch } from '../services/api'
+import { getUser, calculateMatch, updatePublicKey } from '../services/api'
 import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
+import { getOrCreateKeyPair, getPublicKeyString } from '../utils/encryption'
 import IceCube from '../components/IceCube'
 import ScoreReveal from '../components/ScoreReveal'
 import MatchRevealNew from '../components/MatchRevealNew'
@@ -65,6 +66,27 @@ function UserProfileNew() {
     // Load new user
     loadUser()
   }, [username])
+
+  // Initialize encryption keys for logged-in users
+  useEffect(() => {
+    if (isAuthenticated() && loggedInUser?.username) {
+      initializeEncryption()
+    }
+  }, [loggedInUser])
+
+  async function initializeEncryption() {
+    try {
+      // Generate or load keypair
+      await getOrCreateKeyPair()
+
+      // Upload public key to server
+      const publicKey = await getPublicKeyString()
+      await updatePublicKey(loggedInUser.username, publicKey)
+      console.log('✓ Encryption keys initialized')
+    } catch (error) {
+      console.error('Encryption setup error:', error)
+    }
+  }
 
   async function loadUser() {
     try {

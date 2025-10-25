@@ -115,30 +115,39 @@ function Messages() {
 
   async function handleSendMessage(e) {
     e.preventDefault()
-    
+
     if (!messageInput.trim() || !selectedConversation || sending) return
-    
+
     try {
       setSending(true)
-      
+
       // Get recipient's public key
-      const recipientKeyResponse = await getPublicKey(selectedConversation.userId)
-      
-      if (!recipientKeyResponse.publicKey) {
-        alert('Recipient has not set up encryption yet. They need to visit the messages page first.')
+      let recipientKeyResponse
+      try {
+        recipientKeyResponse = await getPublicKey(selectedConversation.userId)
+      } catch (keyError) {
+        console.error('Failed to get recipient public key:', keyError)
+        alert(`Cannot send message: ${selectedConversation.userName} hasn't set up encryption yet. Ask them to log in and visit their profile or messages page first.`)
+        setSending(false)
         return
       }
-      
+
+      if (!recipientKeyResponse.publicKey) {
+        alert(`${selectedConversation.userName} hasn't set up their encryption keys yet. Ask them to log in and visit their profile or messages page.`)
+        setSending(false)
+        return
+      }
+
       // Encrypt for recipient
       const encryptedForRecipient = await encryptMessage(
         messageInput,
         recipientKeyResponse.publicKey
       )
-      
+
       // Encrypt for self (so we can read it later)
       const myPublicKey = await getPublicKeyString()
       const encryptedForSelf = await encryptMessage(messageInput, myPublicKey)
-      
+
       // Send to server
       await sendMessage(
         userId,
@@ -146,7 +155,7 @@ function Messages() {
         encryptedForRecipient,
         encryptedForSelf
       )
-      
+
       // Add to local messages (optimistic update)
       const newMessage = {
         id: Date.now().toString(),
@@ -155,15 +164,15 @@ function Messages() {
         content: messageInput,
         createdAt: new Date().toISOString()
       }
-      
+
       setMessages([...messages, newMessage])
       setMessageInput('')
-      
+
       // Reload messages to get server version
       setTimeout(() => {
         loadMessages(selectedConversation.userId)
       }, 500)
-      
+
     } catch (error) {
       console.error('Error sending message:', error)
       alert('Failed to send message: ' + error.message)
