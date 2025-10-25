@@ -51,19 +51,19 @@ function UserProfileNew() {
       setCalculating(true)
       setCubeShattered(true)
 
-      // Hide ice cube after particles finish (3s for full animation)
-      setTimeout(() => {
-        setHideIceCube(true)
-      }, 3000)
-
       // Fetch match data
       const response = await calculateMatch(viewerId, shareableId)
       setMatchData(response.match)
 
-      // After shatter animation (500ms), show score
+      // Hide ice cube after particles finish (1.5s for full animation)
+      setTimeout(() => {
+        setHideIceCube(true)
+      }, 1500)
+
+      // Show score after ice cube is hidden
       setTimeout(() => {
         setShowScore(true)
-      }, 500)
+      }, 1600)
     } catch (err) {
       alert('Failed to calculate match: ' + err.message)
       setCubeShattered(false)
@@ -101,7 +101,7 @@ function UserProfileNew() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden" style={{ overflowY: 'auto' }}>
       {/* Subtle background particles */}
       <div className="fixed inset-0 opacity-20 pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -192,51 +192,62 @@ function UserProfileNew() {
       </header>
 
       {/* Stage Region (Below Header) */}
-      <div className="px-4 mt-4">
-        <div className="max-w-2xl mx-auto">
-          {/* Ice Cube (before and during shatter) */}
-          {!hideIceCube && (
-            <div className="text-center">
-              <IceCube onShatter={handleShatterIce} disabled={calculating} />
-              {!cubeShattered && (
-                <p className="mt-2 text-white/40 text-sm uppercase tracking-widest">
-                  {viewerId ? 'TAP TO SHATTER THE ICE' : 'Add ?viewer=YOUR_ID to URL'}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Loading dots while calculating */}
-          {cubeShattered && !showScore && hideIceCube && (
-            <div className="text-center py-8">
-              <div className="text-6xl font-bold text-white/50">
-                <span className="inline-block animate-pulse" style={{ animationDelay: '0ms' }}>.</span>
-                <span className="inline-block animate-pulse" style={{ animationDelay: '200ms' }}>.</span>
-                <span className="inline-block animate-pulse" style={{ animationDelay: '400ms' }}>.</span>
-              </div>
-            </div>
-          )}
-
-          {/* Score (after shatter) */}
-          {showScore && matchData && (
-            <div className="animate-fade-in py-8">
-              {matchData.revealDetails ? (
-                <ScoreReveal
-                  score={matchData.score}
-                  onComplete={handleScoreComplete}
-                />
-              ) : (
-                <div className="text-center">
-                  <div className="text-6xl font-bold text-white/70 mb-4">
-                    {matchData.score}%
-                  </div>
-                  <p className="text-white/50 max-w-md mx-auto">
-                    {matchData.privacyMessage}
+      <div className="px-4 mt-4" style={{ overflow: 'visible' }}>
+        <div className="max-w-2xl mx-auto relative" style={{ overflow: 'visible' }}>
+          {/* Ice Cube Container */}
+          <div className="text-center" style={{ position: 'relative', overflow: 'visible' }}>
+            {/* Ice Cube (before and during shatter) */}
+            {!hideIceCube && (
+              <div style={{
+                position: cubeShattered ? 'absolute' : 'relative',
+                top: cubeShattered ? 0 : 'auto',
+                left: cubeShattered ? 0 : 'auto',
+                right: cubeShattered ? 0 : 'auto',
+                zIndex: 20,
+                overflow: 'visible',
+                height: cubeShattered ? 0 : 'auto'
+              }}>
+                <IceCube onShatter={handleShatterIce} disabled={calculating} />
+                {!cubeShattered && (
+                  <p className="mt-2 text-white/40 text-sm uppercase tracking-widest">
+                    {viewerId ? 'TAP TO SHATTER THE ICE' : 'Add ?viewer=YOUR_ID to URL'}
                   </p>
+                )}
+              </div>
+            )}
+
+            {/* Loading dots while calculating - appears immediately, behind ice cube */}
+            {cubeShattered && !showScore && (
+              <div className="text-center py-8" style={{ position: 'relative', zIndex: 5 }}>
+                <div className="text-6xl font-bold text-white/50">
+                  <span className="inline-block animate-fade-in-out" style={{ animationDelay: '0ms' }}>.</span>
+                  <span className="inline-block animate-fade-in-out" style={{ animationDelay: '200ms' }}>.</span>
+                  <span className="inline-block animate-fade-in-out" style={{ animationDelay: '400ms' }}>.</span>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+
+            {/* Score (after shatter) - only shows when ice cube is hidden */}
+            {showScore && matchData && hideIceCube && (
+              <div className="animate-fade-in py-8" style={{ position: 'relative', zIndex: 10 }}>
+                {matchData.revealDetails ? (
+                  <ScoreReveal
+                    score={matchData.score}
+                    onComplete={handleScoreComplete}
+                  />
+                ) : (
+                  <div className="text-center">
+                    <div className="text-6xl font-bold text-white/70 mb-4">
+                      {matchData.score}%
+                    </div>
+                    <p className="text-white/50 max-w-md mx-auto">
+                      {matchData.privacyMessage}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

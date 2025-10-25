@@ -36,6 +36,25 @@ code {
   animation: fade-in 0.5s ease-out forwards;
 }
 
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 2s ease-in-out infinite;
+}
+
 /* Smooth scrollbar for horizontal chips */
 ::-webkit-scrollbar {
   height: 4px;
