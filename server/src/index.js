@@ -11,6 +11,7 @@ import { connectDB } from './config/database.js';
 import usersRouter from './routes/users.js';
 import matchRouter from './routes/match.js';
 import recommendationsRouter from './routes/recommendations.js';
+import messagesRouter from './routes/messages.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 app.use('/api/users', usersRouter);
 app.use('/api/match', matchRouter);
 app.use('/api/recommendations', recommendationsRouter);
+app.use('/api/messages', messagesRouter);
 
 // Health check
 app.get('/health', (req, res) => {

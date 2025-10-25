@@ -48,3 +48,70 @@ export async function createUser(userData) {
   }
   return response.json();
 }
+
+// === Messaging APIs ===
+
+export async function sendMessage(senderId, recipientId, encryptedContent, senderEncryptedContent) {
+  const response = await fetch(`${API_BASE}/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      senderId,
+      recipientId,
+      encryptedContent,
+      senderEncryptedContent,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to send message');
+  }
+  return response.json();
+}
+
+export async function getConversations(userId) {
+  const response = await fetch(`${API_BASE}/messages/conversations/${userId}`);
+
+  if (!response.ok) {
+    throw new Error('Failed to get conversations');
+  }
+  return response.json();
+}
+
+export async function getMessages(userId, otherUserId, limit = 50) {
+  const response = await fetch(
+    `${API_BASE}/messages/${userId}/${otherUserId}?limit=${limit}`
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to get messages');
+  }
+  return response.json();
+}
+
+export async function updatePublicKey(userId, publicKey) {
+  const response = await fetch(`${API_BASE}/messages/public-key/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ publicKey }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update public key');
+  }
+  return response.json();
+}
+
+export async function getPublicKey(userId) {
+  const response = await fetch(`${API_BASE}/messages/public-key/${userId}`);
+
+  if (!response.ok) {
+    throw new Error('Failed to get public key');
+  }
+  return response.json();
+}

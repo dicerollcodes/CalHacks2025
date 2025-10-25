@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true
+  },
+  // Public key for E2EE messaging (stored as JWK JSON string)
+  publicKey: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true
