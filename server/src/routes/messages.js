@@ -7,27 +7,27 @@ const router = express.Router();
 
 /**
  * POST /api/messages
- * Send a message (encrypted)
- * Body: { senderId, recipientId, encryptedContent, senderEncryptedContent }
+ * Send a message
+ * Body: { senderId, recipientId, content }
  */
 router.post('/', async (req, res) => {
   try {
-    const { senderId, recipientId, encryptedContent, senderEncryptedContent } = req.body;
+    const { senderId, recipientId, content } = req.body;
 
-    if (!senderId || !recipientId || !encryptedContent || !senderEncryptedContent) {
+    if (!senderId || !recipientId || !content) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Verify that users are matched and can message (score >= 70)
     const sortedIds = [senderId, recipientId].sort();
-    const match = await Match.findOne({ 
+    const match = await Match.findOne({
       userIds: sortedIds,
-      canMessage: true 
+      canMessage: true
     });
 
     if (!match) {
-      return res.status(403).json({ 
-        error: 'You need a match score of 70+ to send messages' 
+      return res.status(403).json({
+        error: 'You need a match score of 70+ to send messages'
       });
     }
 
@@ -35,8 +35,7 @@ router.post('/', async (req, res) => {
     const message = new Message({
       senderId,
       recipientId,
-      encryptedContent,
-      senderEncryptedContent
+      content
     });
 
     await message.save();
@@ -47,8 +46,7 @@ router.post('/', async (req, res) => {
         id: message._id,
         senderId: message.senderId,
         recipientId: message.recipientId,
-        encryptedContent: message.encryptedContent,
-        senderEncryptedContent: message.senderEncryptedContent,
+        content: message.content,
         createdAt: message.createdAt
       }
     });
@@ -106,10 +104,7 @@ router.get('/conversations/:userId', async (req, res) => {
           lastMessage: lastMessage ? {
             id: lastMessage._id,
             senderId: lastMessage.senderId,
-            // Return appropriate encrypted version
-            encryptedContent: lastMessage.senderId === userId 
-              ? lastMessage.senderEncryptedContent 
-              : lastMessage.encryptedContent,
+            content: lastMessage.content,
             createdAt: lastMessage.createdAt
           } : null,
           unreadCount,
@@ -178,15 +173,12 @@ router.get('/:userId/:otherUserId', async (req, res) => {
       { isRead: true }
     );
 
-    // Return messages with appropriate encrypted content
+    // Return messages with content
     const formattedMessages = messages.map(msg => ({
       id: msg._id,
       senderId: msg.senderId,
       recipientId: msg.recipientId,
-      // Return the version encrypted for this user
-      encryptedContent: msg.senderId === userId 
-        ? msg.senderEncryptedContent 
-        : msg.encryptedContent,
+      content: msg.content,
       createdAt: msg.createdAt,
       isRead: msg.isRead
     }));

@@ -11,13 +11,8 @@ const messageSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  // Encrypted message content - can only be decrypted by recipient
-  encryptedContent: {
-    type: String,
-    required: true
-  },
-  // Store sender's encrypted version (so they can read it too)
-  senderEncryptedContent: {
+  // Message content in plaintext
+  content: {
     type: String,
     required: true
   },

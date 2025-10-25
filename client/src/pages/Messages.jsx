@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FaArrowLeft, FaPaperPlane, FaLock } from 'react-icons/fa'
-import { getConversations, getMessages, sendMessage, getPublicKey, updatePublicKey } from '../services/api'
-import { getOrCreateKeyPair, getPublicKeyString, encryptMessage, decryptMessage } from '../utils/encryption'
+import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa'
+import { getConversations, getMessages, sendMessage } from '../services/api'
 import { getUser, isAuthenticated } from '../services/auth'
 
 function Messages() {
@@ -26,7 +25,6 @@ function Messages() {
       return
     }
 
-    initializeEncryption()
     loadConversations()
   }, [userId, navigate])
 
@@ -54,19 +52,6 @@ function Messages() {
     scrollToBottom()
   }, [messages])
 
-  async function initializeEncryption() {
-    try {
-      // Generate or load keypair
-      await getOrCreateKeyPair()
-      
-      // Upload public key to server
-      const publicKey = await getPublicKeyString()
-      await updatePublicKey(userId, publicKey)
-    } catch (error) {
-      console.error('Encryption setup error:', error)
-    }
-  }
-
   async function loadConversations() {
     try {
       setLoading(true)
@@ -87,27 +72,7 @@ function Messages() {
   async function loadMessages(otherUserId) {
     try {
       const response = await getMessages(userId, otherUserId)
-      
-      // Decrypt messages
-      const decryptedMessages = await Promise.all(
-        response.messages.map(async (msg) => {
-          try {
-            const decrypted = await decryptMessage(msg.encryptedContent)
-            return {
-              ...msg,
-              content: decrypted
-            }
-          } catch (error) {
-            console.error('Failed to decrypt message:', error)
-            return {
-              ...msg,
-              content: '[Unable to decrypt]'
-            }
-          }
-        })
-      )
-      
-      setMessages(decryptedMessages)
+      setMessages(response.messages)
     } catch (error) {
       console.error('Error loading messages:', error)
     }
@@ -121,39 +86,11 @@ function Messages() {
     try {
       setSending(true)
 
-      // Get recipient's public key
-      let recipientKeyResponse
-      try {
-        recipientKeyResponse = await getPublicKey(selectedConversation.userId)
-      } catch (keyError) {
-        console.error('Failed to get recipient public key:', keyError)
-        alert(`Cannot send message: ${selectedConversation.userName} hasn't set up encryption yet. Ask them to log in and visit their profile or messages page first.`)
-        setSending(false)
-        return
-      }
-
-      if (!recipientKeyResponse.publicKey) {
-        alert(`${selectedConversation.userName} hasn't set up their encryption keys yet. Ask them to log in and visit their profile or messages page.`)
-        setSending(false)
-        return
-      }
-
-      // Encrypt for recipient
-      const encryptedForRecipient = await encryptMessage(
-        messageInput,
-        recipientKeyResponse.publicKey
-      )
-
-      // Encrypt for self (so we can read it later)
-      const myPublicKey = await getPublicKeyString()
-      const encryptedForSelf = await encryptMessage(messageInput, myPublicKey)
-
       // Send to server
       await sendMessage(
         userId,
         selectedConversation.userId,
-        encryptedForRecipient,
-        encryptedForSelf
+        messageInput
       )
 
       // Add to local messages (optimistic update)
@@ -231,10 +168,6 @@ function Messages() {
             <h1 className="text-xl font-bold">Messages</h1>
             <p className="text-xs text-white/40">Logged in as @{userId}</p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-white/40">
-            <FaLock />
-            <span>End-to-end encrypted</span>
-          </div>
         </div>
       </header>
 
@@ -281,7 +214,7 @@ function Messages() {
                       {conv.lastMessage && (
                         <p className="text-sm text-white/50 truncate mt-1">
                           {conv.lastMessage.senderId === userId ? 'You: ' : ''}
-                          [Encrypted message]
+                          {conv.lastMessage.content}
                         </p>
                       )}
                       {conv.unreadCount > 0 && (
@@ -370,7 +303,7 @@ function Messages() {
             <div className="flex-1 flex items-center justify-center text-white/40">
               <div className="text-center">
                 <p className="text-lg mb-2">Select a conversation to start messaging</p>
-                <p className="text-sm">All messages are end-to-end encrypted 🔒</p>
+                <p className="text-sm">Messages with 70+ matches 💬</p>
               </div>
             </div>
           )}

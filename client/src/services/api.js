@@ -51,7 +51,7 @@ export async function createUser(userData) {
 
 // === Messaging APIs ===
 
-export async function sendMessage(senderId, recipientId, encryptedContent, senderEncryptedContent) {
+export async function sendMessage(senderId, recipientId, content) {
   const response = await fetch(`${API_BASE}/messages`, {
     method: 'POST',
     headers: {
@@ -60,8 +60,7 @@ export async function sendMessage(senderId, recipientId, encryptedContent, sende
     body: JSON.stringify({
       senderId,
       recipientId,
-      encryptedContent,
-      senderEncryptedContent,
+      content,
     }),
   });
 
