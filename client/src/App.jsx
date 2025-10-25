@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Auth from './pages/Auth'
 import CreateProfile from './pages/CreateProfile'
 import AddInterests from './pages/AddInterests'
+import Messages from './pages/Messages'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/create" element={<CreateProfile />} />
         <Route path="/interests" element={<AddInterests />} />
         <Route path="/user/:username" element={<UserProfileNew />} />
+        <Route path="/messages" element={<Messages />} />
       </Routes>
     </BrowserRouter>
   )

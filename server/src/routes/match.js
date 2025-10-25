@@ -1,6 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import MatchCache from '../models/MatchCache.js';
+import Match from '../models/Match.js';
 import { calculateMatch } from '../services/claudeService.js';
 import { normalizeInterests, createMatchCacheKey } from '../utils/helpers.js';
 
@@ -87,6 +88,32 @@ router.post('/', async (req, res) => {
     // Privacy protection: Hide detailed interests if match score < 40%
     const MINIMUM_MATCH_THRESHOLD = 40;
     const shouldRevealDetails = matchData.matchScore >= MINIMUM_MATCH_THRESHOLD;
+
+    // Store match if score >= 70 (allows messaging)
+    const MESSAGE_THRESHOLD = 70;
+    if (matchData.matchScore >= MESSAGE_THRESHOLD) {
+      const existingMatch = await Match.findOne({ userIds: sortedUserIds });
+      
+      if (!existingMatch) {
+        const newMatch = new Match({
+          userIds: sortedUserIds,
+          user1Id: sortedUserIds[0],
+          user2Id: sortedUserIds[1],
+          matchScore: matchData.matchScore,
+          canMessage: true,
+          user1Name: sortedUserIds[0] === viewerId ? viewer.name : target.name,
+          user2Name: sortedUserIds[0] === viewerId ? target.name : viewer.name,
+          user1Avatar: `https://i.pravatar.cc/150?u=${sortedUserIds[0]}`,
+          user2Avatar: `https://i.pravatar.cc/150?u=${sortedUserIds[1]}`
+        });
+        await newMatch.save();
+      } else if (existingMatch.matchScore !== matchData.matchScore) {
+        // Update if score changed
+        existingMatch.matchScore = matchData.matchScore;
+        existingMatch.canMessage = true;
+        await existingMatch.save();
+      }
+    }
 
     res.json({
       success: true,

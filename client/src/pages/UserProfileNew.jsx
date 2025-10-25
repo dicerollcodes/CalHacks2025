@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
+import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin, FaComments } from 'react-icons/fa'
 import { getUser, calculateMatch } from '../services/api'
 import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
 import IceCube from '../components/IceCube'
@@ -716,6 +716,45 @@ function UserProfileNew() {
             matchData={matchData}
             show={showChips}
           />
+          
+          {/* Conversation Starters */}
+          {matchData?.score >= 70 && matchData?.sharedInterests?.length > 0 && (
+            <div className="w-full pb-6 px-6 mt-8">
+              <div className="max-w-2xl mx-auto">
+                <h3
+                  className="text-white/40 text-xs uppercase tracking-[0.2em] font-semibold text-center mb-4"
+                  style={{
+                    fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif'
+                  }}
+                >
+                  Start a Conversation
+                </h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {generateConversationStarters(matchData.sharedInterests).map((starter, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleConversationStarterClick(starter)}
+                      className="relative overflow-hidden rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(40px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        boxShadow: `
+                          0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                          inset 0 1px 0 0 rgba(255, 255, 255, 0.05)
+                        `
+                      }}
+                    >
+                      <p className="text-white/80 text-sm leading-relaxed">
+                        {starter}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -768,6 +807,37 @@ function UserProfileNew() {
       )}
     </div>
   )
+}
+
+// Helper function to generate conversation starters
+function generateConversationStarters(sharedInterests) {
+  if (!sharedInterests || sharedInterests.length === 0) return [];
+  
+  const interest1 = sharedInterests[0];
+  const interest2 = sharedInterests[1] || interest1;
+  
+  return [
+    `Hey! I saw we have ${interest1} in common on Shatter the Ice! How long have you been into ${interest1}?`,
+    `What got you interested in ${interest2}? I'd love to hear your story!`,
+    `I'm always looking to connect with people who are into ${interest1}. Want to chat about it?`
+  ];
+}
+
+function handleConversationStarterClick(message) {
+  // Store the message in localStorage and navigate to messages page
+  localStorage.setItem('pendingMessage', message);
+  
+  // Get current user ID and target user ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewerId = urlParams.get('viewer');
+  const targetId = window.location.pathname.split('/').pop();
+  
+  if (viewerId && targetId) {
+    localStorage.setItem('messageRecipient', targetId);
+    window.location.href = `/messages?userId=${viewerId}`;
+  } else {
+    alert('Please add ?viewer=YOUR_ID to the URL to send messages');
+  }
 }
 
 export default UserProfileNew

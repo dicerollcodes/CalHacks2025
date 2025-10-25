@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema({
     minlength: 3,
     maxlength: 20,
     match: /^[a-z0-9_]+$/  // Only lowercase letters, numbers, and underscores
+  },
+  // Public key for E2EE messaging (stored as JWK JSON string)
+  publicKey: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true
