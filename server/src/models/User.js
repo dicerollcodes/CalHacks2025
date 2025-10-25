@@ -1,6 +1,18 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+    index: true
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
   name: {
     type: String,
     required: true,
@@ -25,18 +37,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
-  // For generating shareable links
-  shareableId: {
+  // Username for profile URLs (e.g., /user/johndoe)
+  username: {
     type: String,
     unique: true,
-    required: true
+    required: true,
+    lowercase: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 20,
+    match: /^[a-z0-9_]+$/  // Only lowercase letters, numbers, and underscores
   }
 }, {
   timestamps: true
 });
 
-// Index for faster lookups
-userSchema.index({ shareableId: 1 });
+// Index for faster lookups (username already indexed via unique:true)
 userSchema.index({ schoolId: 1 });
 
 export default mongoose.model('User', userSchema);

@@ -23,8 +23,8 @@ router.post('/', async (req, res) => {
 
     // Fetch both users with their private interests
     const [viewer, target] = await Promise.all([
-      User.findOne({ shareableId: viewerId }).populate('schoolId'),
-      User.findOne({ shareableId: targetUserId }).populate('schoolId')
+      User.findOne({ username: viewerId.toLowerCase() }).populate('schoolId'),
+      User.findOne({ username: targetUserId.toLowerCase() }).populate('schoolId')
     ]);
 
     if (!viewer || !target) {
@@ -97,7 +97,7 @@ router.post('/', async (req, res) => {
         relatedInterests: shouldRevealDetails ? matchData.relatedInterests : [],
         conversationStarters: shouldRevealDetails ? matchData.conversationStarters : [],
         privacyMessage: !shouldRevealDetails
-          ? `You have a ${matchData.matchScore}% match - not enough overlap to reveal details. Keep exploring!`
+          ? `You have a ${matchData.matchScore}% match - not enough overlap to reveal details. Try adding more interests to your profile to build a richer personality for better matches!`
           : null
       },
       viewer: {

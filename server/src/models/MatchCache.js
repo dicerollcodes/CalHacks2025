@@ -4,15 +4,15 @@ import mongoose from 'mongoose';
 const relatedInterestSchema = new mongoose.Schema({
   userInterest: { type: String, required: true },
   targetInterest: { type: String, required: true },
-  relationship: { type: String, required: true }
+  relationship: { type: String, required: true },
+  score: { type: Number, required: true }
 }, { _id: false });
 
 const matchCacheSchema = new mongoose.Schema({
   // Store sorted user IDs to ensure consistency (user1-user2 = user2-user1)
   userIds: {
     type: [String],
-    required: true,
-    index: true
+    required: true
   },
   // Normalized interests for matching (lowercase, trimmed)
   normalizedInterests: {

@@ -24,7 +24,7 @@ function ShatterParticles({ trigger }) {
   const particles = useMemo(() => {
     const positions = []
     const velocities = []
-    const count = 150
+    const count = 200
 
     for (let i = 0; i < count; i++) {
       // Start from cube center with slight offset
@@ -35,8 +35,8 @@ function ShatterParticles({ trigger }) {
         (Math.random() - 0.5) * spread
       )
 
-      // Explode outward in all directions - MORE VIOLENT
-      const speed = 0.2 + Math.random() * 0.3
+      // Explode outward in all directions - BIGGER EXPLOSION
+      const speed = 0.25 + Math.random() * 0.35
       const theta = Math.random() * Math.PI * 2
       const phi = Math.random() * Math.PI
       velocities.push(
@@ -194,10 +194,10 @@ export default function IceCube({ onShatter, disabled }) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '180px',
-          height: '180px',
+          width: '280px',
+          height: '280px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%)',
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%)',
           pointerEvents: 'none',
           zIndex: 1
         }}
@@ -222,37 +222,37 @@ export default function IceCube({ onShatter, disabled }) {
       >
 
         {/* Dramatic lighting setup */}
-        <ambientLight intensity={230.5} />
+        <ambientLight intensity={0.3} />
 
         {/* SHIMMER LIGHT - Strong corner light for ice sparkle */}
-        <pointLight position={[5, 5, 5]} intensity={100} color="#ffffff" castShadow />
-        <directionalLight position={[4, 4, 4]} intensity={50} color="#ffffff" castShadow />
+        <pointLight position={[5, 5, 5]} intensity={15} color="#ffffff" castShadow />
+        <directionalLight position={[4, 4, 4]} intensity={8} color="#ffffff" castShadow />
 
         {/* Key light - bright from top */}
-        <directionalLight position={[3, 4, 3]} intensity={100} color="#ffffff" />
+        <directionalLight position={[3, 4, 3]} intensity={12} color="#ffffff" />
 
         {/* Fill light - soft blue from side */}
-        <directionalLight position={[-4, 2, 3]} intensity={100} color="#105e82ff" />
+        <directionalLight position={[-4, 2, 3]} intensity={10} color="#105e82ff" />
 
         {/* Rim light - highlight edges from behind */}
-        <directionalLight position={[0, -2, -4]} intensity={50} color="#38bdf8" />
+        <directionalLight position={[0, -2, -4]} intensity={6} color="#38bdf8" />
 
         {/* Accent lights for glow */}
-        <pointLight position={[2, 2, 4]} intensity={22} color="#e0f2fe" />
-        <pointLight position={[-2, -2, 4]} intensity={44} color="#7dd3fc" />
-        <pointLight position={[0, 0, 3]} intensity={66} color="#ffffff" />
+        <pointLight position={[2, 2, 4]} intensity={3} color="#e0f2fe" />
+        <pointLight position={[-2, -2, 4]} intensity={5} color="#7dd3fc" />
+        <pointLight position={[0, 0, 3]} intensity={8} color="#ffffff" />
 
         {/* Spot light for dramatic effect */}
         <spotLight
           position={[0, 5, 0]}
           angle={0.6}
           penumbra={0.5}
-          intensity={100}
+          intensity={12}
           color="#bae6fd"
         />
 
         {/* Additional back light */}
-        <directionalLight position={[0, 0, -5]} intensity={40} color="#7dd3fc" />
+        <directionalLight position={[0, 0, -5]} intensity={5} color="#7dd3fc" />
 
         <RotatingCube onShatter={handleShatter} shattering={shattering} />
         <ShatterParticles trigger={shattering} />

@@ -8,6 +8,7 @@ import cors from 'cors';
 import { connectDB } from './config/database.js';
 
 // Import routes
+import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import matchRouter from './routes/match.js';
 import recommendationsRouter from './routes/recommendations.js';
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/match', matchRouter);
 app.use('/api/recommendations', recommendationsRouter);

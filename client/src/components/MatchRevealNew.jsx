@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-function InterestCard({ type, interest1, interest2, relationship, index }) {
+function InterestCard({ type, interest1, interest2, relationship, score, index }) {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -10,7 +10,8 @@ function InterestCard({ type, interest1, interest2, relationship, index }) {
     return () => clearTimeout(timer)
   }, [index])
 
-  const matchPercentage = type === 'exact' ? 100 : Math.floor(75 + Math.random() * 15)
+  // Use actual score from the data, or default to 100 for exact matches
+  const matchPercentage = type === 'exact' ? 100 : (score || 75)
 
   return (
     <div
@@ -229,6 +230,7 @@ export default function MatchRevealNew({ matchData, show }) {
                   interest1={relation.userInterest}
                   interest2={relation.targetInterest}
                   relationship={relation.relationship}
+                  score={relation.score}
                   index={hasShared ? sharedInterests.length + index : index}
                 />
               ))}
