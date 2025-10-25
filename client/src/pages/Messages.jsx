@@ -207,20 +207,22 @@ function Messages() {
                       className="w-12 h-12 rounded-full"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <h3 className="font-semibold truncate">{conv.userName}</h3>
-                        <span className="text-xs text-green-400">{conv.matchScore}%</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {conv.unreadCount > 0 && (
+                            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold bg-blue-500 text-white rounded-full">
+                              {conv.unreadCount}
+                            </span>
+                          )}
+                          <span className="text-xs text-green-400">{conv.matchScore}%</span>
+                        </div>
                       </div>
                       {conv.lastMessage && (
                         <p className="text-sm text-white/50 truncate mt-1">
                           {conv.lastMessage.senderId === userId ? 'You: ' : ''}
                           {conv.lastMessage.content}
                         </p>
-                      )}
-                      {conv.unreadCount > 0 && (
-                        <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-blue-500 rounded-full">
-                          {conv.unreadCount}
-                        </span>
                       )}
                     </div>
                   </div>
@@ -236,33 +238,37 @@ function Messages() {
             <>
               {/* Chat Header */}
               <div className="p-4 border-b border-white/10 bg-black/50 backdrop-blur-lg">
-                <div className="flex items-center gap-3">
+                <Link
+                  to={`/user/${selectedConversation.userId}`}
+                  className="flex items-center gap-3 hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+                >
                   <img
                     src={selectedConversation.userAvatar}
                     alt={selectedConversation.userName}
                     className="w-10 h-10 rounded-full"
                   />
                   <div>
-                    <h3 className="font-semibold">{selectedConversation.userName}</h3>
-                    <p className="text-xs text-green-400">{selectedConversation.matchScore}% match</p>
+                    <h3 className="font-semibold hover:text-white/80 transition-colors">{selectedConversation.userName}</h3>
+                    <p className="text-xs text-green-400">{selectedConversation.matchScore}% match • View profile →</p>
                   </div>
-                </div>
+                </Link>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((msg) => {
+                {messages.map((msg, index) => {
                   const isSent = msg.senderId === userId
                   return (
                     <div
                       key={msg.id}
-                      className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fade-in-up`}
+                      style={{ animationDelay: `${index * 0.05}s` }}
                     >
                       <div
                         className={`
-                          max-w-[70%] rounded-2xl px-4 py-2
-                          ${isSent 
-                            ? 'bg-blue-600 text-white' 
+                          max-w-[70%] rounded-2xl px-4 py-2 transform transition-all hover:scale-105
+                          ${isSent
+                            ? 'bg-blue-600 text-white'
                             : 'bg-white/10 text-white/90'
                           }
                         `}
