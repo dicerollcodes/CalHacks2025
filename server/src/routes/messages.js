@@ -77,8 +77,13 @@ router.get('/conversations/:userId', async (req, res) => {
     const conversations = await Promise.all(
       matches.map(async (match) => {
         const otherUserId = match.user1Id === userId ? match.user2Id : match.user1Id;
-        const otherUserName = match.user1Id === userId ? match.user2Name : match.user1Name;
-        const otherUserAvatar = match.user1Id === userId ? match.user2Avatar : match.user1Avatar;
+
+        // Fetch live user data to get current avatar and name
+        const otherUser = await User.findOne({ username: otherUserId });
+
+        if (!otherUser) {
+          return null; // Skip if user no longer exists
+        }
 
         // Get last message in conversation
         const lastMessage = await Message.findOne({
@@ -98,9 +103,10 @@ router.get('/conversations/:userId', async (req, res) => {
         return {
           matchId: match._id,
           userId: otherUserId,
-          userName: otherUserName,
-          userAvatar: otherUserAvatar,
+          userName: otherUser.name,
+          userAvatar: otherUser.avatar,
           matchScore: match.matchScore,
+          canMessage: match.canMessage,
           lastMessage: lastMessage ? {
             id: lastMessage._id,
             senderId: lastMessage.senderId,
@@ -113,9 +119,12 @@ router.get('/conversations/:userId', async (req, res) => {
       })
     );
 
+    // Filter out null entries (deleted users)
+    const validConversations = conversations.filter(conv => conv !== null);
+
     res.json({
       success: true,
-      conversations
+      conversations: validConversations
     });
   } catch (error) {
     console.error('Error fetching conversations:', error);

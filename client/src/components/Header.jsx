@@ -46,6 +46,18 @@ export default function Header() {
                 My Profile
               </Link>
               <Link
+                to="/connect"
+                className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-2"
+              >
+                🔗 Connect
+              </Link>
+              <Link
+                to="/explore"
+                className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-2"
+              >
+                ✨ Explore
+              </Link>
+              <Link
                 to="/messages"
                 className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-2"
               >

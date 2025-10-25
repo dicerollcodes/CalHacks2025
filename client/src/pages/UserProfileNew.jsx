@@ -33,6 +33,9 @@ function UserProfileNew() {
   const [editingSocialPlatform, setEditingSocialPlatform] = useState(null)
   const [socialInput, setSocialInput] = useState('')
   const [customMessage, setCustomMessage] = useState('')
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   const availableSocials = [
     { id: 'instagram', name: 'Instagram', icon: '📷', placeholder: '@username' },
@@ -322,6 +325,73 @@ function UserProfileNew() {
     setEditedInterests(editedInterests.filter((_, i) => i !== index))
   }
 
+  function handleAvatarFileChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB')
+      return
+    }
+
+    setSelectedAvatarFile(file)
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  async function handleUploadAvatar() {
+    if (!selectedAvatarFile || !avatarPreview) return
+
+    setUploadingAvatar(true)
+    try {
+      // avatarPreview already contains the base64 data URL
+      const response = await fetch(`http://localhost:3000/api/users/${user.username}/avatar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          avatar: avatarPreview
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to upload avatar')
+      }
+
+      // Update user state with new avatar (base64 data URL)
+      setUser({ ...user, avatar: avatarPreview })
+
+      // Clear preview
+      setSelectedAvatarFile(null)
+      setAvatarPreview(null)
+
+      alert('Avatar uploaded successfully!')
+    } catch (err) {
+      alert('Failed to upload avatar: ' + err.message)
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  function cancelAvatarUpload() {
+    setSelectedAvatarFile(null)
+    setAvatarPreview(null)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -395,9 +465,11 @@ function UserProfileNew() {
         <div className="max-w-2xl mx-auto text-center">
           {/* Avatar */}
           <img
-            src={`https://i.pravatar.cc/150?u=${user.username}`}
+            src={user.avatar && user.avatar.startsWith('data:image/')
+              ? user.avatar
+              : `https://i.pravatar.cc/150?u=${user.username}`}
             alt={user.name}
-            className="w-24 h-24 rounded-full mx-auto mb-4 ring-4 ring-white/20"
+            className="w-24 h-24 rounded-full mx-auto mb-4 ring-4 ring-white/20 object-cover"
           />
 
           {/* Name */}
@@ -523,6 +595,64 @@ function UserProfileNew() {
                         : '✗ Username taken'}
                     </p>
                   )}
+                </div>
+
+                {/* Avatar Upload */}
+                <div className="mb-6">
+                  <label className="block text-sm text-white/60 mb-2">Profile Picture</label>
+
+                  <div className="flex flex-col items-center gap-4">
+                    {/* Current/Preview Avatar */}
+                    <div className="relative">
+                      <img
+                        src={avatarPreview || (user.avatar && user.avatar.startsWith('data:image/') ? user.avatar : `https://i.pravatar.cc/150?u=${user.username}`)}
+                        alt="Avatar preview"
+                        className="w-24 h-24 rounded-full ring-4 ring-white/20 object-cover"
+                      />
+                      {uploadingAvatar && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                          <div className="text-white text-xs">Uploading...</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* File Selection or Upload Actions */}
+                    {!selectedAvatarFile ? (
+                      <label className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white text-sm font-medium transition-all cursor-pointer">
+                        Choose Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarFileChange}
+                          className="hidden"
+                          disabled={saving || uploadingAvatar}
+                        />
+                      </label>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleUploadAvatar}
+                          disabled={uploadingAvatar}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-600/50 rounded-xl text-white text-sm font-medium transition-all"
+                        >
+                          {uploadingAvatar ? 'Uploading...' : 'Upload'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelAvatarUpload}
+                          disabled={uploadingAvatar}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white text-sm font-medium transition-all"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-white/40 text-center">
+                      Max size: 5MB • JPEG, PNG, GIF, WebP
+                    </p>
+                  </div>
                 </div>
 
                 {/* Social Media */}
@@ -836,7 +966,7 @@ function UserProfileNew() {
               type="text"
               value={socialInput}
               onChange={(e) => setSocialInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && saveSocialFromModal()}
+              onKeyDown={(e) => e.key === 'Enter' && saveSocialFromModal()}
               placeholder={editingSocialPlatform.placeholder}
               autoFocus
               className="w-full px-4 py-3 mb-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"

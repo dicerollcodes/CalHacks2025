@@ -89,11 +89,12 @@ router.post('/', async (req, res) => {
     const MINIMUM_MATCH_THRESHOLD = 40;
     const shouldRevealDetails = matchData.matchScore >= MINIMUM_MATCH_THRESHOLD;
 
-    // Store match if score >= 70 (allows messaging)
+    // Store/update match based on score threshold
     const MESSAGE_THRESHOLD = 70;
+    const existingMatch = await Match.findOne({ userIds: sortedUserIds });
+
     if (matchData.matchScore >= MESSAGE_THRESHOLD) {
-      const existingMatch = await Match.findOne({ userIds: sortedUserIds });
-      
+      // Score is high enough - allow messaging
       if (!existingMatch) {
         const newMatch = new Match({
           userIds: sortedUserIds,
@@ -107,11 +108,19 @@ router.post('/', async (req, res) => {
           user2Avatar: `https://i.pravatar.cc/150?u=${sortedUserIds[1]}`
         });
         await newMatch.save();
-      } else if (existingMatch.matchScore !== matchData.matchScore) {
-        // Update if score changed
+      } else if (existingMatch.matchScore !== matchData.matchScore || !existingMatch.canMessage) {
+        // Update score and ensure canMessage is true
         existingMatch.matchScore = matchData.matchScore;
         existingMatch.canMessage = true;
         await existingMatch.save();
+      }
+    } else if (existingMatch) {
+      // Score dropped below threshold - disable messaging
+      if (existingMatch.canMessage || existingMatch.matchScore !== matchData.matchScore) {
+        existingMatch.matchScore = matchData.matchScore;
+        existingMatch.canMessage = false;
+        await existingMatch.save();
+        console.log(`🚫 Match score dropped below ${MESSAGE_THRESHOLD}% - messaging disabled`);
       }
     }
 

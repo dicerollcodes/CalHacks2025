@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa'
+import { io } from 'socket.io-client'
 import { getConversations, getMessages, sendMessage } from '../services/api'
 import { getUser, isAuthenticated } from '../services/auth'
 
 function Messages() {
   const navigate = useNavigate()
+  const location = useLocation()
   const loggedInUser = getUser()
   const userId = loggedInUser?.username
-  
+
   const [conversations, setConversations] = useState([])
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [messages, setMessages] = useState([])
@@ -16,6 +18,7 @@ function Messages() {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef(null)
+  const socketRef = useRef(null)
 
   useEffect(() => {
     // Check authentication
@@ -25,7 +28,33 @@ function Messages() {
       return
     }
 
+    // Connect to Socket.IO
+    socketRef.current = io('http://localhost:3000', {
+      transports: ['websocket', 'polling']
+    })
+
+    // Announce user is online
+    socketRef.current.emit('user:online', userId)
+
+    // Listen for incoming messages
+    socketRef.current.on('message:receive', (message) => {
+      console.log('📨 Received real-time message:', message)
+      // Add message to current conversation if it matches
+      if (selectedConversation &&
+          (message.senderId === selectedConversation.userId ||
+           message.recipientId === selectedConversation.userId)) {
+        setMessages(prev => [...prev, message])
+      }
+    })
+
     loadConversations()
+
+    // Cleanup on unmount
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect()
+      }
+    }
   }, [userId, navigate])
 
   useEffect(() => {
@@ -33,20 +62,30 @@ function Messages() {
     const pendingMessage = localStorage.getItem('pendingMessage')
     const recipientId = localStorage.getItem('messageRecipient')
 
+    // Handle recipient from Connect page (via navigation state)
+    const stateRecipient = location.state?.pendingRecipient
+
     if (pendingMessage) {
       setMessageInput(pendingMessage)
       localStorage.removeItem('pendingMessage')
     }
 
-    if (recipientId && conversations.length > 0) {
-      // Find and select this conversation
-      const conv = conversations.find(c => c.userId === recipientId)
-      if (conv) {
-        handleSelectConversation(conv)
+    if (conversations.length > 0) {
+      const targetRecipient = stateRecipient || recipientId
+      if (targetRecipient) {
+        // Find and select this conversation
+        const conv = conversations.find(c => c.userId === targetRecipient)
+        if (conv) {
+          handleSelectConversation(conv)
+        }
+        localStorage.removeItem('messageRecipient')
+        // Clear navigation state
+        if (stateRecipient) {
+          window.history.replaceState({}, document.title)
+        }
       }
-      localStorage.removeItem('messageRecipient')
     }
-  }, [conversations])
+  }, [conversations, location.state])
 
   useEffect(() => {
     scrollToBottom()
@@ -86,29 +125,38 @@ function Messages() {
     try {
       setSending(true)
 
-      // Send to server
-      await sendMessage(
-        userId,
-        selectedConversation.userId,
-        messageInput
-      )
-
-      // Add to local messages (optimistic update)
+      const messageId = Date.now().toString()
       const newMessage = {
-        id: Date.now().toString(),
+        id: messageId,
         senderId: userId,
         recipientId: selectedConversation.userId,
         content: messageInput,
         createdAt: new Date().toISOString()
       }
 
+      // Add to local messages immediately (optimistic update)
       setMessages([...messages, newMessage])
+      const sentContent = messageInput
       setMessageInput('')
 
-      // Reload messages to get server version
-      setTimeout(() => {
-        loadMessages(selectedConversation.userId)
-      }, 500)
+      // Send via Socket.IO for instant delivery
+      if (socketRef.current) {
+        socketRef.current.emit('message:send', {
+          senderId: userId,
+          recipientId: selectedConversation.userId,
+          content: sentContent,
+          messageId: messageId
+        })
+      }
+
+      // Also save to database for offline users and history
+      await sendMessage(
+        userId,
+        selectedConversation.userId,
+        sentContent
+      )
+
+      console.log('✓ Message sent via Socket.IO + Database')
 
     } catch (error) {
       console.error('Error sending message:', error)
@@ -129,12 +177,19 @@ function Messages() {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-    
+
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
     return date.toLocaleDateString()
+  }
+
+  function getAvatarUrl(avatar, username) {
+    if (avatar && avatar.startsWith('data:image/')) {
+      return avatar
+    }
+    return `https://i.pravatar.cc/150?u=${username}`
   }
 
   if (!isAuthenticated() || !userId) {
@@ -202,9 +257,9 @@ function Messages() {
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={conv.userAvatar}
+                      src={getAvatarUrl(conv.userAvatar, conv.userId)}
                       alt={conv.userName}
-                      className="w-12 h-12 rounded-full"
+                      className="w-12 h-12 rounded-full object-cover"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -215,7 +270,13 @@ function Messages() {
                               {conv.unreadCount}
                             </span>
                           )}
-                          <span className="text-xs text-green-400">{conv.matchScore}%</span>
+                          {conv.canMessage === false ? (
+                            <span className="text-xs text-red-400 flex items-center gap-1">
+                              🚫 {conv.matchScore}%
+                            </span>
+                          ) : (
+                            <span className="text-xs text-green-400">{conv.matchScore}%</span>
+                          )}
                         </div>
                       </div>
                       {conv.lastMessage && (
@@ -243,9 +304,9 @@ function Messages() {
                   className="flex items-center gap-3 hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
                 >
                   <img
-                    src={selectedConversation.userAvatar}
+                    src={getAvatarUrl(selectedConversation.userAvatar, selectedConversation.userId)}
                     alt={selectedConversation.userName}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full object-cover"
                   />
                   <div>
                     <h3 className="font-semibold hover:text-white/80 transition-colors">{selectedConversation.userName}</h3>
@@ -285,25 +346,38 @@ function Messages() {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-white/10 bg-black/50 backdrop-blur-lg">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!messageInput.trim() || sending}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-white/10 disabled:text-white/30 rounded-full font-semibold transition-colors flex items-center gap-2"
-                  >
-                    <FaPaperPlane className="text-sm" />
-                    <span>Send</span>
-                  </button>
+              {selectedConversation.canMessage !== false ? (
+                <form onSubmit={handleSendMessage} className="p-4 border-t border-white/10 bg-black/50 backdrop-blur-lg">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!messageInput.trim() || sending}
+                      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-white/10 disabled:text-white/30 rounded-full font-semibold transition-colors flex items-center gap-2"
+                    >
+                      <FaPaperPlane className="text-sm" />
+                      <span>Send</span>
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="p-4 border-t border-white/10 bg-black/50 backdrop-blur-lg">
+                  <div className="text-center py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-full">
+                    <p className="text-red-400 text-sm">
+                      🚫 Match score dropped below 70% - messaging disabled
+                    </p>
+                    <p className="text-red-400/60 text-xs mt-1">
+                      Update your interests to improve compatibility
+                    </p>
+                  </div>
                 </div>
-              </form>
+              )}
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center text-white/40">

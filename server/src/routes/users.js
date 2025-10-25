@@ -102,6 +102,96 @@ Return ONLY a JSON array in this exact format, nothing else:
 });
 
 /**
+ * POST /api/users/:username/curated-interests
+ * Generate personalized interest suggestions based on user's current interests
+ */
+router.post('/:username/curated-interests', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // Fetch user with their private interests
+    const user = await User.findOne({ username: username.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const currentInterests = user.privateInterests || [];
+
+    // Default interests that are always available
+    const defaultInterests = [
+      { text: 'coffee', emoji: '☕' },
+      { text: 'hiking', emoji: '🥾' },
+      { text: 'gaming', emoji: '🎮' },
+      { text: 'cooking', emoji: '🍳' },
+      { text: 'reading', emoji: '📚' },
+      { text: 'photography', emoji: '📸' },
+      { text: 'music', emoji: '🎵' },
+      { text: 'fitness', emoji: '💪' },
+      { text: 'travel', emoji: '✈️' },
+      { text: 'art', emoji: '🎨' },
+      { text: 'movies', emoji: '🎬' },
+      { text: 'sports', emoji: '⚽' }
+    ];
+
+    let curatedInterests = [];
+
+    // Generate curated interests based on current interests
+    if (currentInterests.length > 0) {
+      const message = await getAnthropicClient().messages.create({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: `Based on these interests: ${currentInterests.join(', ')}
+
+Generate 12 NEW diverse interests exploring ADJACENT and COMPLEMENTARY areas. Think broadly:
+- If they like "programming", suggest "hardware tinkering", "tech podcasts", "hackathons", NOT more coding
+- If they like "hiking", suggest "landscape photography", "camping", "trail running", NOT more hiking
+- Branch into adjacent hobbies, complementary activities, and related lifestyle choices
+- Be specific and detailed (e.g., "Late-night study sessions" not just "studying")
+- College student appropriate
+- Each with an appropriate single emoji
+- AVOID suggesting interests they already have
+
+CRITICAL: Return ONLY valid JSON array, no extra text before or after:
+[
+  {"text": "interest description", "emoji": "emoji"},
+  {"text": "interest description", "emoji": "emoji"}
+]`
+        }]
+      });
+
+      const content = message.content[0].text.trim();
+
+      // Extract JSON from response (handle cases where Claude adds extra text)
+      try {
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          curatedInterests = JSON.parse(jsonMatch[0]);
+        } else {
+          console.error('No JSON array found in Claude response:', content);
+          curatedInterests = [];
+        }
+      } catch (parseError) {
+        console.error('Failed to parse curated interests JSON:', parseError.message);
+        console.error('Raw content:', content);
+        curatedInterests = [];
+      }
+    }
+
+    res.json({
+      success: true,
+      currentInterests,
+      defaultInterests,
+      curatedInterests
+    });
+  } catch (error) {
+    console.error('Error generating curated interests:', error);
+    res.status(500).json({ error: 'Failed to generate curated interests' });
+  }
+});
+
+/**
  * GET /api/users/check-username/:username
  * Check if username is available
  */
@@ -127,6 +217,50 @@ router.get('/check-username/:username', async (req, res) => {
   } catch (error) {
     console.error('Error checking username:', error);
     res.status(500).json({ error: 'Failed to check username' });
+  }
+});
+
+/**
+ * POST /api/users/:username/avatar
+ * Upload avatar for user (Base64)
+ * Body: { avatar: base64DataUrl }
+ */
+router.post('/:username/avatar', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { avatar } = req.body;
+
+    if (!avatar) {
+      return res.status(400).json({ error: 'No avatar data provided' });
+    }
+
+    // Validate base64 image format
+    if (!avatar.startsWith('data:image/')) {
+      return res.status(400).json({ error: 'Invalid image format' });
+    }
+
+    // Check size (base64 is ~33% larger than binary, so 5MB binary = ~6.7MB base64)
+    const sizeInBytes = (avatar.length * 3) / 4;
+    if (sizeInBytes > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: 'Image size must be less than 5MB' });
+    }
+
+    const user = await User.findOne({ username: username.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Store base64 data directly in MongoDB
+    user.avatar = avatar;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Avatar uploaded successfully'
+    });
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
