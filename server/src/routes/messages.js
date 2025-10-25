@@ -193,59 +193,5 @@ router.get('/:userId/:otherUserId', async (req, res) => {
   }
 });
 
-/**
- * PUT /api/messages/public-key/:userId
- * Update user's public key
- */
-router.put('/public-key/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { publicKey } = req.body;
-
-    if (!publicKey) {
-      return res.status(400).json({ error: 'Public key is required' });
-    }
-
-    const user = await User.findOne({ username: userId.toLowerCase() });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    user.publicKey = publicKey;
-    await user.save();
-
-    res.json({
-      success: true,
-      message: 'Public key updated'
-    });
-  } catch (error) {
-    console.error('Error updating public key:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /api/messages/public-key/:userId
- * Get user's public key for encryption
- */
-router.get('/public-key/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    const user = await User.findOne({ username: userId.toLowerCase() });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({
-      success: true,
-      publicKey: user.publicKey
-    });
-  } catch (error) {
-    console.error('Error fetching public key:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 export default router;
 

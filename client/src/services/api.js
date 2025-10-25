@@ -90,27 +90,3 @@ export async function getMessages(userId, otherUserId, limit = 50) {
   }
   return response.json();
 }
-
-export async function updatePublicKey(userId, publicKey) {
-  const response = await fetch(`${API_BASE}/messages/public-key/${userId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ publicKey }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update public key');
-  }
-  return response.json();
-}
-
-export async function getPublicKey(userId) {
-  const response = await fetch(`${API_BASE}/messages/public-key/${userId}`);
-
-  if (!response.ok) {
-    throw new Error('Failed to get public key');
-  }
-  return response.json();
-}
