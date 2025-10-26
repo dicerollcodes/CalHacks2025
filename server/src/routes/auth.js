@@ -8,6 +8,9 @@ import { generateToken } from '../services/jwtService.js';
 
 const router = express.Router();
 
+// Developer Mode check
+const isDeveloperMode = process.env.DEVELOPER_MODE === 'true';
+
 /**
  * POST /api/auth/check-user
  * Check if a user exists with given email
@@ -415,6 +418,91 @@ router.post('/verify-login', async (req, res) => {
   } catch (error) {
     console.error('Error verifying login:', error);
     res.status(500).json({ error: 'Failed to verify login' });
+  }
+});
+
+/**
+ * GET /api/auth/dev-mode
+ * Check if developer mode is enabled
+ */
+router.get('/dev-mode', (req, res) => {
+  res.json({ enabled: isDeveloperMode });
+});
+
+/**
+ * GET /api/auth/dev-users
+ * Get all users for developer quick login (ONLY works in developer mode)
+ */
+router.get('/dev-users', async (req, res) => {
+  if (!isDeveloperMode) {
+    return res.status(403).json({ error: 'Developer mode is not enabled' });
+  }
+
+  try {
+    const users = await User.find({})
+      .populate('schoolId')
+      .select('username name email schoolId')
+      .sort({ username: 1 })
+      .limit(100);
+
+    res.json({
+      users: users.map(u => ({
+        username: u.username,
+        name: u.name,
+        email: u.email,
+        school: u.schoolId ? u.schoolId.name : null
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching dev users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+/**
+ * POST /api/auth/dev-login
+ * Instant login as any user (ONLY works in developer mode)
+ * Body: { username: string }
+ */
+router.post('/dev-login', async (req, res) => {
+  if (!isDeveloperMode) {
+    return res.status(403).json({ error: 'Developer mode is not enabled' });
+  }
+
+  try {
+    const { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    const user = await User.findOne({ username: username.toLowerCase() }).populate('schoolId');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Generate JWT token
+    const token = generateToken(user);
+
+    console.log(`🔓 DEV LOGIN: ${username}`);
+
+    res.json({
+      success: true,
+      message: 'Developer login successful',
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        username: user.username,
+        school: user.schoolId ? user.schoolId.name : null,
+        profileUrl: `${req.protocol}://${req.get('host')}/user/${user.username}`
+      }
+    });
+  } catch (error) {
+    console.error('Error with dev login:', error);
+    res.status(500).json({ error: 'Failed to log in' });
   }
 });
 

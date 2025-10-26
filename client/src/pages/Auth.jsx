@@ -14,6 +14,11 @@ export default function Auth() {
   const [error, setError] = useState('')
   const [codeSent, setCodeSent] = useState(false)
 
+  // Developer Mode
+  const [devMode, setDevMode] = useState(false)
+  const [devUsers, setDevUsers] = useState([])
+  const [showDevPanel, setShowDevPanel] = useState(false)
+
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated()) {
@@ -21,6 +26,54 @@ export default function Auth() {
       navigate(`/user/${user.username}`, { replace: true })
     }
   }, [])
+
+  // Check for developer mode
+  useEffect(() => {
+    async function checkDevMode() {
+      try {
+        const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/auth/dev-mode` : '/api/auth/dev-mode'
+        const response = await fetch(apiUrl)
+        const data = await response.json()
+        setDevMode(data.enabled)
+
+        if (data.enabled) {
+          // Fetch dev users
+          const usersUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/auth/dev-users` : '/api/auth/dev-users'
+          const usersResponse = await fetch(usersUrl)
+          const usersData = await usersResponse.json()
+          setDevUsers(usersData.users || [])
+        }
+      } catch (err) {
+        console.log('Dev mode check failed (expected in production)')
+      }
+    }
+    checkDevMode()
+  }, [])
+
+  async function handleDevLogin(username) {
+    setLoading(true)
+    try {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/auth/dev-login` : '/api/auth/dev-login'
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Dev login failed')
+      }
+
+      saveAuthToken(data.token)
+      saveUser(data.user)
+      navigate(`/user/${data.user.username}`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleSendCode() {
     if (!email) {
@@ -221,6 +274,46 @@ export default function Auth() {
           </div>
         </div>
       </div>
+
+      {/* Developer Mode Panel */}
+      {devMode && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <button
+            onClick={() => setShowDevPanel(!showDevPanel)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-lg"
+          >
+            {showDevPanel ? '✕ Close' : '🔧 Dev Mode'}
+          </button>
+
+          {showDevPanel && (
+            <div
+              className="absolute bottom-14 right-0 w-80 max-h-96 overflow-y-auto bg-black/95 border border-purple-500/50 rounded-lg p-4 shadow-2xl"
+            >
+              <div className="mb-3 pb-3 border-b border-purple-500/30">
+                <h3 className="text-sm font-bold text-purple-400">🔧 Developer Quick Login</h3>
+                <p className="text-xs text-white/50 mt-1">Click any user to instantly log in</p>
+              </div>
+
+              <div className="space-y-2">
+                {devUsers.map((user) => (
+                  <button
+                    key={user.username}
+                    onClick={() => handleDevLogin(user.username)}
+                    disabled={loading}
+                    className="w-full text-left px-3 py-2 bg-white/5 hover:bg-purple-600/20 rounded border border-white/10 hover:border-purple-500/50 transition-all disabled:opacity-50"
+                  >
+                    <div className="text-sm font-medium text-white">{user.name}</div>
+                    <div className="text-xs text-white/60">@{user.username}</div>
+                    {user.school && (
+                      <div className="text-xs text-purple-400 mt-1">{user.school}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
