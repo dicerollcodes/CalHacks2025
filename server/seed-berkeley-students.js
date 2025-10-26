@@ -11,19 +11,16 @@ const students = [
     email: 'alex.chen@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'CS major who loves hackathons and late-night coding sessions. Always down for boba runs!',
-    year: 'Junior',
-    major: 'Computer Science',
-    interests: ['Machine Learning', 'Web Development', 'Gaming', 'Anime', 'Boba Tea', 'Hackathons', 'Open Source', 'Startups', 'Music Production', 'Photography'],
+    privateInterests: ['Machine Learning', 'Web Development', 'Gaming', 'Anime', 'Boba Tea', 'Hackathons', 'Open Source', 'Startups', 'Music Production', 'Photography'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Night Owl'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'sometimes',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -32,19 +29,16 @@ const students = [
     email: 'sarah.m@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Pre-med student balancing orgo and volunteer work. Love yoga and sustainable living!',
-    year: 'Sophomore',
-    major: 'Molecular & Cell Biology',
-    interests: ['Medicine', 'Yoga', 'Sustainability', 'Cooking', 'Volunteering', 'Running', 'Meditation', 'Plant-Based Diet', 'Hiking', 'Journaling'],
+    privateInterests: ['Medicine', 'Yoga', 'Sustainability', 'Cooking', 'Volunteering', 'Running', 'Meditation', 'Plant-Based Diet', 'Hiking', 'Journaling'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Very Clean',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Rarely',
-      sleepSchedule: 'Early Bird'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'very-clean',
+      socialLevel: 'quiet',
+      guests: 'rarely',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -53,19 +47,16 @@ const students = [
     email: 'jake.t@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Business major and frat member. Big on networking and weekend adventures!',
-    year: 'Senior',
-    major: 'Business Administration',
-    interests: ['Entrepreneurship', 'Investing', 'Fitness', 'Networking', 'Travel', 'Basketball', 'Parties', 'Real Estate', 'Fashion', 'Podcast Hosting'],
+    privateInterests: ['Entrepreneurship', 'Investing', 'Fitness', 'Networking', 'Travel', 'Basketball', 'Parties', 'Real Estate', 'Fashion', 'Podcast Hosting'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'Male Only',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Loud',
-      guestsFrequency: 'Often',
-      sleepSchedule: 'Night Owl'
+      gender: 'male',
+      genderPreference: 'male',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'very-social',
+      guests: 'often',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -74,19 +65,16 @@ const students = [
     email: 'maya.p@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'EECS and art double major. Creating at the intersection of technology and design.',
-    year: 'Junior',
-    major: 'EECS & Art Practice',
-    interests: ['Digital Art', 'UI/UX Design', 'Robotics', 'Gaming', 'Illustration', 'VR/AR', 'Animation', 'Creative Coding', 'Music', 'Film'],
+    privateInterests: ['Digital Art', 'UI/UX Design', 'Robotics', 'Gaming', 'Illustration', 'VR/AR', 'Animation', 'Creative Coding', 'Music', 'Film'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'Prefer Pets',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Flexible'
+      gender: 'female',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'sometimes',
+      sleepSchedule: 'flexible',
+      smoking: 'non-smoker',
+      pets: 'has-pets'
     }
   },
   {
@@ -95,19 +83,16 @@ const students = [
     email: 'david.kim@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Physics major obsessed with understanding the universe. Aspiring astrophysicist!',
-    year: 'Sophomore',
-    major: 'Physics',
-    interests: ['Astrophysics', 'Mathematics', 'Chess', 'Science Fiction', 'Stargazing', 'Philosophy', 'Classical Music', 'Reading', 'Puzzles', 'Teaching'],
+    privateInterests: ['Astrophysics', 'Mathematics', 'Chess', 'Science Fiction', 'Stargazing', 'Philosophy', 'Classical Music', 'Reading', 'Puzzles', 'Teaching'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Very Clean',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Rarely',
-      sleepSchedule: 'Early Bird'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'very-clean',
+      socialLevel: 'quiet',
+      guests: 'rarely',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -116,19 +101,16 @@ const students = [
     email: 'emma.j@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'English major and aspiring novelist. Coffee addict and bookworm extraordinaire.',
-    year: 'Junior',
-    major: 'English',
-    interests: ['Creative Writing', 'Literature', 'Coffee', 'Poetry', 'Theatre', 'Film Analysis', 'Book Clubs', 'Journalism', 'Blogging', 'Vintage Fashion'],
+    privateInterests: ['Creative Writing', 'Literature', 'Coffee', 'Poetry', 'Theatre', 'Film Analysis', 'Book Clubs', 'Journalism', 'Blogging', 'Vintage Fashion'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: true,
-      petPreference: 'Prefer Pets',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Night Owl'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'quiet',
+      guests: 'sometimes',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'has-pets'
     }
   },
   {
@@ -137,19 +119,16 @@ const students = [
     email: 'marcus.w@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Varsity athlete studying economics. Training hard and studying harder!',
-    year: 'Freshman',
-    major: 'Economics',
-    interests: ['Track & Field', 'Sports Analytics', 'Economics', 'Meal Prep', 'Hip Hop', 'Video Games', 'Financial Markets', 'Nutrition', 'Sneaker Culture', 'Podcasts'],
+    privateInterests: ['Track & Field', 'Sports Analytics', 'Economics', 'Meal Prep', 'Hip Hop', 'Video Games', 'Financial Markets', 'Nutrition', 'Sneaker Culture', 'Podcasts'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'Male Only',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Clean',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Early Bird'
+      gender: 'male',
+      genderPreference: 'male',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'sometimes',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -158,19 +137,16 @@ const students = [
     email: 'lily.z@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Environmental science student passionate about climate action and outdoor adventures.',
-    year: 'Sophomore',
-    major: 'Environmental Science',
-    interests: ['Sustainability', 'Rock Climbing', 'Backpacking', 'Climate Activism', 'Photography', 'Camping', 'Marine Biology', 'Gardening', 'Biking', 'Documentary Films'],
+    privateInterests: ['Sustainability', 'Rock Climbing', 'Backpacking', 'Climate Activism', 'Photography', 'Camping', 'Marine Biology', 'Gardening', 'Biking', 'Documentary Films'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'Prefer Pets',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Early Bird'
+      gender: 'female',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'quiet',
+      guests: 'sometimes',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'has-pets'
     }
   },
   {
@@ -179,19 +155,16 @@ const students = [
     email: 'ryan.lee@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Mechanical engineering major building the future. Cars, robots, and innovation!',
-    year: 'Junior',
-    major: 'Mechanical Engineering',
-    interests: ['Robotics', 'Automotive Engineering', ' 3D Printing', 'Drones', 'Hardware Hacking', 'Racing', 'CAD Design', 'Woodworking', 'Electronics', 'Formula SAE'],
+    privateInterests: ['Robotics', 'Automotive Engineering', '3D Printing', 'Drones', 'Hardware Hacking', 'Racing', 'CAD Design', 'Woodworking', 'Electronics', 'Formula SAE'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Flexible'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'sometimes',
+      sleepSchedule: 'flexible',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -200,19 +173,16 @@ const students = [
     email: 'sofia.g@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Psychology major interested in mental health and social justice. Therapy dog mom!',
-    year: 'Senior',
-    major: 'Psychology',
-    interests: ['Mental Health', 'Therapy', 'Social Justice', 'Dogs', 'Painting', 'Self-Care', 'Advocacy', 'True Crime', 'Astrology', 'Thrifting'],
+    privateInterests: ['Mental Health', 'Therapy', 'Social Justice', 'Dogs', 'Painting', 'Self-Care', 'Advocacy', 'True Crime', 'Astrology', 'Thrifting'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: true,
-      petPreference: 'Prefer Pets',
-      cleanliness: 'Clean',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Rarely',
-      sleepSchedule: 'Early Bird'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'quiet',
+      guests: 'rarely',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'has-pets'
     }
   },
   {
@@ -221,19 +191,16 @@ const students = [
     email: 'tyler.b@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Data science major and EDM enthusiast. Living for music festivals and algorithms!',
-    year: 'Junior',
-    major: 'Data Science',
-    interests: ['EDM', 'Music Festivals', 'Data Visualization', 'DJing', 'Python', 'Statistics', 'Raving', 'Concert Photography', 'Cryptocurrency', 'Neural Networks'],
+    privateInterests: ['EDM', 'Music Festivals', 'Data Visualization', 'DJing', 'Python', 'Statistics', 'Raving', 'Concert Photography', 'Cryptocurrency', 'Neural Networks'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Loud',
-      guestsFrequency: 'Often',
-      sleepSchedule: 'Night Owl'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'very-social',
+      guests: 'often',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -242,19 +209,16 @@ const students = [
     email: 'nina.s@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Political science major fighting for change. Future lawyer and policy maker!',
-    year: 'Senior',
-    major: 'Political Science',
-    interests: ['Law', 'Policy', 'Debate', 'Human Rights', 'Public Speaking', 'Campaigning', 'News', 'History', 'Writing', 'Community Organizing'],
+    privateInterests: ['Law', 'Policy', 'Debate', 'Human Rights', 'Public Speaking', 'Campaigning', 'News', 'History', 'Writing', 'Community Organizing'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Clean',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Flexible'
+      gender: 'female',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'sometimes',
+      sleepSchedule: 'flexible',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -263,19 +227,16 @@ const students = [
     email: 'chris.t@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Architecture major designing sustainable cities. Sketching and building models 24/7.',
-    year: 'Sophomore',
-    major: 'Architecture',
-    interests: ['Architecture', 'Urban Design', 'Sketching', 'Model Building', 'Photography', 'Sustainability', 'Art History', 'Travel', 'Museums', 'Coffee Shops'],
+    privateInterests: ['Architecture', 'Urban Design', 'Sketching', 'Model Building', 'Photography', 'Sustainability', 'Art History', 'Travel', 'Museums', 'Coffee Shops'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Rarely',
-      sleepSchedule: 'Night Owl'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'quiet',
+      guests: 'rarely',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -284,19 +245,16 @@ const students = [
     email: 'olivia.n@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Bioengineering major working on medical devices. Science meets compassion!',
-    year: 'Junior',
-    major: 'Bioengineering',
-    interests: ['Biomedical Engineering', 'Healthcare', 'Lab Work', 'Prosthetics', 'Biology', 'Chemistry', 'Volunteering', 'Tennis', 'Baking', 'K-Pop'],
+    privateInterests: ['Biomedical Engineering', 'Healthcare', 'Lab Work', 'Prosthetics', 'Biology', 'Chemistry', 'Volunteering', 'Tennis', 'Baking', 'K-Pop'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Very Clean',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Early Bird'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'very-clean',
+      socialLevel: 'quiet',
+      guests: 'sometimes',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -305,19 +263,16 @@ const students = [
     email: 'jason.r@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Music major and jazz pianist. Practicing and performing whenever I can!',
-    year: 'Senior',
-    major: 'Music',
-    interests: ['Jazz', 'Piano', 'Composition', 'Music Theory', 'Recording', 'Gigging', 'Classical Music', 'Improvisation', 'Teaching', 'Vinyl Collecting'],
+    privateInterests: ['Jazz', 'Piano', 'Composition', 'Music Theory', 'Recording', 'Gigging', 'Classical Music', 'Improvisation', 'Teaching', 'Vinyl Collecting'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Often',
-      sleepSchedule: 'Night Owl'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'often',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -326,19 +281,16 @@ const students = [
     email: 'rachel.c@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Sociology major studying inequality and social movements. Activist and organizer.',
-    year: 'Junior',
-    major: 'Sociology',
-    interests: ['Social Justice', 'Activism', 'Research', 'Community Work', 'Feminism', 'Protests', 'Writing', 'Public Health', 'Documentary', 'Mutual Aid'],
+    privateInterests: ['Social Justice', 'Activism', 'Research', 'Community Work', 'Feminism', 'Protests', 'Writing', 'Public Health', 'Documentary', 'Mutual Aid'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: false,
-      petPreference: 'Prefer Pets',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Quiet',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Flexible'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'quiet',
+      guests: 'sometimes',
+      sleepSchedule: 'flexible',
+      smoking: 'non-smoker',
+      pets: 'has-pets'
     }
   },
   {
@@ -347,19 +299,16 @@ const students = [
     email: 'kevin.p@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Chemical engineering major and foodie. Cooking up solutions in lab and kitchen!',
-    year: 'Sophomore',
-    major: 'Chemical Engineering',
-    interests: ['Chemistry', 'Cooking', 'Food Science', 'Restaurants', 'Process Engineering', 'Brewing', 'Fermentation', 'Baking', 'Recipe Development', 'Travel'],
+    privateInterests: ['Chemistry', 'Cooking', 'Food Science', 'Restaurants', 'Process Engineering', 'Brewing', 'Fermentation', 'Baking', 'Recipe Development', 'Travel'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'No Preference',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Clean',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Often',
-      sleepSchedule: 'Flexible'
+      gender: 'male',
+      genderPreference: 'no-preference',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'often',
+      sleepSchedule: 'flexible',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -368,19 +317,16 @@ const students = [
     email: 'amanda.l@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Media studies major creating content. Influencer wannabe and video editor!',
-    year: 'Freshman',
-    major: 'Media Studies',
-    interests: ['Content Creation', 'Video Editing', 'Social Media', 'Vlogging', 'TikTok', 'Fashion', 'Beauty', 'Marketing', 'Photography', 'Branding'],
+    privateInterests: ['Content Creation', 'Video Editing', 'Social Media', 'Vlogging', 'TikTok', 'Fashion', 'Beauty', 'Marketing', 'Photography', 'Branding'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: false,
-      petPreference: 'No Preference',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Often',
-      sleepSchedule: 'Flexible'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'often',
+      sleepSchedule: 'flexible',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -389,19 +335,16 @@ const students = [
     email: 'ethan.d@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Applied math major and competitive gamer. Grinding ranked and problem sets!',
-    year: 'Junior',
-    major: 'Applied Mathematics',
-    interests: ['Gaming', 'Esports', 'Mathematics', 'League of Legends', 'Chess', 'Competitive Programming', 'Streaming', 'Statistics', 'Probability', 'Game Theory'],
+    privateInterests: ['Gaming', 'Esports', 'Mathematics', 'League of Legends', 'Chess', 'Competitive Programming', 'Streaming', 'Statistics', 'Probability', 'Game Theory'],
     roommatePreferences: {
-      gender: 'Male',
-      genderPreference: 'Male Only',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Moderate',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Rarely',
-      sleepSchedule: 'Night Owl'
+      gender: 'male',
+      genderPreference: 'male',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'quiet',
+      guests: 'rarely',
+      sleepSchedule: 'night-owl',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   },
   {
@@ -410,19 +353,16 @@ const students = [
     email: 'isabelle.w@berkeley.edu',
     password: '$2b$10$YourHashedPasswordHere',
     schoolId: '507f1f77bcf86cd799439011',
-    bio: 'Dance major expressing myself through movement. Ballet, contemporary, and hip hop!',
-    year: 'Sophomore',
-    major: 'Dance & Performance Studies',
-    interests: ['Dance', 'Ballet', 'Contemporary Dance', 'Choreography', 'Hip Hop', 'Fitness', 'Yoga', 'Performance Art', 'Music', 'Fashion Design'],
+    privateInterests: ['Dance', 'Ballet', 'Contemporary Dance', 'Choreography', 'Hip Hop', 'Fitness', 'Yoga', 'Performance Art', 'Music', 'Fashion Design'],
     roommatePreferences: {
-      gender: 'Female',
-      genderPreference: 'Female Only',
-      hasPets: false,
-      petPreference: 'No Pets',
-      cleanliness: 'Clean',
-      noiseLevel: 'Moderate',
-      guestsFrequency: 'Sometimes',
-      sleepSchedule: 'Early Bird'
+      gender: 'female',
+      genderPreference: 'female',
+      cleanliness: 'moderately-clean',
+      socialLevel: 'moderately-social',
+      guests: 'sometimes',
+      sleepSchedule: 'early-riser',
+      smoking: 'non-smoker',
+      pets: 'no-pets'
     }
   }
 ];
@@ -432,21 +372,19 @@ async function seedDatabase() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    // Delete all existing users
     const deleteResult = await User.deleteMany({});
     console.log(`Deleted ${deleteResult.deletedCount} existing users`);
 
-    // Insert new students
     const insertedUsers = await User.insertMany(students);
     console.log(`Successfully added ${insertedUsers.length} Berkeley students!`);
 
     console.log('\n🎓 Berkeley Students Added:');
     insertedUsers.forEach(user => {
-      console.log(`  - ${user.name} (@${user.username}) - ${user.major}`);
+      console.log(`  - ${user.name} (@${user.username})`);
     });
 
     console.log('\n✅ Database seeded successfully!');
-    console.log('💡 Developer Mode: You can now spy on full interest lists in the admin panel');
+    console.log('💡 Developer Mode: You can now spy on full interest lists');
 
     await mongoose.connection.close();
     process.exit(0);
