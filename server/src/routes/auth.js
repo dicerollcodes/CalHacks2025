@@ -53,16 +53,7 @@ router.post('/send-code', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Extract domain from email
-    const emailDomain = email.toLowerCase().split('@')[1];
-
-    // Check if domain is associated with a school
-    const school = await School.findOne({ domain: emailDomain });
-    if (!school) {
-      return res.status(400).json({
-        error: "Please use your school email. If you're still receiving this message, Shatter the Ice is not live at your school yet!"
-      });
-    }
+    // HARDCODED FOR CAL HACKS DEMO: Accept all email domains (domain check removed)
 
     // Check if user already exists with verified email
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -313,16 +304,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    // Extract domain from email
-    const emailDomain = email.toLowerCase().split('@')[1];
-
-    // Check if domain is associated with a school
-    const school = await School.findOne({ domain: emailDomain });
-    if (!school) {
-      return res.status(400).json({
-        error: "Please use your school email. If you're still receiving this message, Shatter the Ice is not live at your school yet!"
-      });
-    }
+    // HARDCODED FOR CAL HACKS DEMO: Accept all email domains (domain check removed)
 
     // Check if user exists
     const user = await User.findOne({ email: email.toLowerCase() });
