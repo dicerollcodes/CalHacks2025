@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
 import { getUser, calculateMatch, getPrivateInterests } from '../services/api'
@@ -61,6 +61,9 @@ function UserProfileNew() {
   const [devMode, setDevMode] = useState(false)
   const [privateInterests, setPrivateInterests] = useState(null)
 
+  // Use ref to track apiComplete for interval (avoids React closure issue)
+  const apiCompleteRef = useRef(false)
+
   // Count-up animations for scores (rounded to integers for main display)
   const animatedFriendScore = useCountUp(
     showScore && matchData?.friendScore ? Math.round(matchData.friendScore) : 0,
@@ -82,6 +85,7 @@ function UserProfileNew() {
     setShowScore(false)
     setShowChips(false)
     setApiComplete(false)
+    apiCompleteRef.current = false // Reset ref too
     setCalculating(false)
     setError(null)
     setIsEditMode(false)
@@ -122,6 +126,7 @@ function UserProfileNew() {
       console.log('✅ Match calculation complete:', response)
       setMatchData(response.match)
       setApiComplete(true)
+      apiCompleteRef.current = true // Update ref for interval
       console.log('✅ apiComplete set to true')
     } catch (err) {
       console.error('❌ Match calculation failed:', err)
@@ -129,6 +134,7 @@ function UserProfileNew() {
       setCubeShattered(false)
       setCalculating(false)
       setApiComplete(false)
+      apiCompleteRef.current = false
       setAnimationComplete(false)
     }
   }
@@ -142,7 +148,7 @@ function UserProfileNew() {
     const maxAttempts = 200 // 10 seconds (50ms * 200)
     const checkApi = setInterval(() => {
       attempts++
-      if (apiComplete) {
+      if (apiCompleteRef.current) { // Check ref instead of state to avoid closure issue
         console.log('✅ API complete! Showing results...')
         clearInterval(checkApi)
         // Hide ice cube and show score
@@ -160,6 +166,7 @@ function UserProfileNew() {
         setCubeShattered(false)
         setCalculating(false)
         setAnimationComplete(false)
+        apiCompleteRef.current = false
       } else if (attempts % 20 === 0) {
         console.log(`⏳ Still waiting for API... (${attempts * 50}ms)`)
       }
@@ -916,7 +923,7 @@ function UserProfileNew() {
                   top: cubeShattered ? 0 : 'auto',
                   left: cubeShattered ? 0 : 'auto',
                   right: cubeShattered ? 0 : 'auto',
-                  zIndex: 20,
+                  zIndex: 5, // Lower z-index so it doesn't block buttons
                   overflow: 'visible',
                   height: cubeShattered ? 0 : 'auto'
                 }}>
