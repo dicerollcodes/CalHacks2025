@@ -93,7 +93,7 @@ export async function calculateMatch(userInterests, targetInterests, userName, t
   const user1Indexed = cleanUserInterests.map((interest, idx) => `[${idx}] ${interest}`);
   const user2Indexed = cleanTargetInterests.map((interest, idx) => `[${idx}] ${interest}`);
 
-  const prompt = `You are an OPTIMISTIC compatibility expert helping college students find roommate connections! Your job is to find creative connections between interests and be GENEROUS with scoring.
+  const prompt = `You are a BALANCED compatibility expert helping college students find roommate connections. Find meaningful connections between interests with fair, differentiated scoring.
 
 User 1 interests:
 ${user1Indexed.join('\n')}
@@ -101,79 +101,80 @@ ${user1Indexed.join('\n')}
 User 2 interests:
 ${user2Indexed.join('\n')}
 
-SCORING PHILOSOPHY: Be GENEROUS! College students bond over many things. Find creative connections and reward them well. Use decimal precision for variety.
+SCORING PHILOSOPHY: Be FAIR and REALISTIC. Reward strong matches well, but differentiate clearly between strong and weak connections. Use decimal precision for variety.
 
-GENEROUS SCORING GUIDE (with decimal precision):
+BALANCED SCORING GUIDE (with decimal precision):
 
-95-100: IDENTICAL or DIRECT SYNONYMS
-- "programming" and "coding" = 98.5
-- "soccer" and "football" = 99.2
-- "gym" and "working out" = 97.1
-- "gaming" and "video games" = 98.8
+90-100: IDENTICAL or DIRECT SYNONYMS
+- "programming" and "coding" = 96.3
+- "soccer" and "football" = 98.1
+- "gym" and "working out" = 94.7
+- "gaming" and "video games" = 97.2
 
-85-94: VERY STRONGLY RELATED
-- "rock climbing" and "bouldering" = 91.3
-- "League of Legends" and "MOBAs" = 89.7
-- "guitar" and "music" = 88.4
-- "coffee" and "cafes" = 87.6
-- "hiking" and "backpacking" = 92.1
+80-89: VERY STRONGLY RELATED (same specific domain)
+- "rock climbing" and "bouldering" = 86.4
+- "League of Legends" and "MOBAs" = 84.8
+- "guitar" and "bass" = 82.3
+- "coffee" and "espresso" = 85.1
+- "hiking" and "backpacking" = 87.6
 
-75-84: CLEARLY RELATED (same category)
-- "basketball" and "sports" = 81.2
-- "reading" and "books" = 83.7
-- "anime" and "manga" = 82.4
-- "cooking" and "food" = 79.8
-- "travel" and "adventure" = 80.5
+70-79: CLEARLY RELATED (same general category)
+- "basketball" and "sports" = 75.2
+- "reading" and "books" = 77.4
+- "anime" and "manga" = 76.8
+- "cooking" and "baking" = 73.5
+- "guitar" and "music" = 78.9
 
-65-74: RELATED INTERESTS (good conversation starters!)
-- "basketball" and "soccer" = 71.3
-- "gaming" and "anime" = 69.8
-- "gym" and "sports" = 73.2
-- "music" and "concerts" = 72.6
-- "reading" and "writing" = 70.4
+60-69: RELATED INTERESTS (conversation potential)
+- "basketball" and "soccer" = 66.3
+- "gaming" and "anime" = 64.7
+- "gym" and "sports" = 68.1
+- "music" and "concerts" = 67.5
+- "reading" and "writing" = 65.9
 
-55-64: ADJACENT INTERESTS (potential common ground)
-- "gym" and "nutrition" = 62.7
-- "travel" and "photography" = 61.4
-- "coding" and "tech" = 63.8
-- "coffee" and "studying" = 58.9
-- "music" and "dancing" = 60.2
+50-59: ADJACENT INTERESTS (some common ground)
+- "gym" and "nutrition" = 56.4
+- "travel" and "photography" = 54.8
+- "coding" and "tech" = 57.2
+- "coffee" and "studying" = 52.6
+- "art" and "design" = 55.3
 
-45-54: LOOSE BUT REAL CONNECTIONS (shared lifestyle indicators)
-- "outdoors" and "hiking" = 52.3
-- "art" and "museums" = 51.7
-- "food" and "restaurants" = 49.8
-- "Netflix" and "movies" = 53.4
+40-49: LOOSE CONNECTION (minimal overlap)
+- "cooking" and "restaurants" = 46.7
+- "Netflix" and "movies" = 48.2
+- "outdoors" and "hiking" = 44.5
 
-35-44: MINIMAL CONNECTION (but still something!)
-- Even different interests show personality traits worth exploring
-- Creative people might connect on "art" and "music" = 41.2
-- Active people might connect on "gym" and "hiking" = 39.7
+30-39: WEAK CONNECTION
+- "music" and "art" = 36.8
+- "gym" and "hiking" = 34.2
 
-Below 35: Very different, but don't go too low! Minimum 20 for any reasonable pairing.
+Below 30: Very different interests
+- Different domains with little commonality
+- Minimum 15 for completely unrelated pairs
 
 IMPORTANT RULES:
-1. BE GENEROUS - roommates bond over many things!
+1. BE REALISTIC - strong matches should be obvious, weak ones should score lower
 2. USE DECIMALS for variety (no rounding to 5s or 10s)
-3. Find creative connections - "late night studying" and "coffee" = great match!
-4. Identical interests should score 95-100 with slight variation
-5. If they share ANY interest in the same broad category (sports, arts, gaming, etc.), score 65+
+3. Find legitimate connections, not forced ones
+4. Identical interests should score 90-100 with slight variation
+5. Only score 65+ if interests are truly in the same category
 
-Calculate overallCompatibility (0.00-100.00) GENEROUSLY:
+Calculate overallCompatibility (0.00-100.00) with BALANCE:
 1. Average all match scores, weighted by strength
-2. If 2+ matches score 90+: add +8 bonus (amazing match!)
-3. If 3+ matches score 70+: add +5 bonus (strong compatibility!)
-4. If 5+ matches found: add +3 bonus (lots in common!)
-5. MINIMUM overall score should be 40 even for very different interests
-6. TYPICAL scores should be 60-85 for college students (they usually share some common ground!)
+2. If 2+ matches score 90+: add +5 bonus (excellent match!)
+3. If 3+ matches score 70+: add +3 bonus (good compatibility)
+4. If 5+ matches found: add +2 bonus (many connections)
+5. TYPICAL scores should be 50-70 for college students with moderate overlap
+6. GREAT matches should be 75-90
+7. PERFECT matches (many identical interests): 85-95
 
 Return ONLY valid JSON with DECIMAL scores:
 {
   "matches": [
-    {"user1Index": 0, "user2Index": 2, "score": 87.4, "reason": "brief explanation"},
-    {"user1Index": 1, "user2Index": 0, "score": 72.8, "reason": "brief explanation"}
+    {"user1Index": 0, "user2Index": 2, "score": 82.4, "reason": "brief explanation"},
+    {"user1Index": 1, "user2Index": 0, "score": 67.8, "reason": "brief explanation"}
   ],
-  "overallCompatibility": 78.6
+  "overallCompatibility": 71.3
 }
 
 Return ONLY the JSON, no other text.`;
