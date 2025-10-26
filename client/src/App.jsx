@@ -8,10 +8,12 @@ import Messages from './pages/Messages'
 import Explore from './pages/Explore'
 import Connect from './pages/Connect'
 import Preferences from './pages/Preferences'
+import ScrollToTop from './components/ScrollToTop'
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />

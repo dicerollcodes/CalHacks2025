@@ -229,7 +229,7 @@ function Messages() {
 
       <div className="max-w-7xl mx-auto h-[calc(100vh-73px)] flex">
         {/* Conversations List */}
-        <div className="w-80 border-r border-white/10 flex flex-col">
+        <div className={`w-full md:w-80 border-r border-white/10 flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-4 border-b border-white/10">
             <h2 className="font-semibold text-white/90">Conversations</h2>
             <p className="text-xs text-white/40 mt-1">
@@ -300,20 +300,30 @@ function Messages() {
             <>
               {/* Chat Header */}
               <div className="p-4 border-b border-white/10 bg-black/50 backdrop-blur-lg">
-                <Link
-                  to={`/user/${selectedConversation.userId}`}
-                  className="flex items-center gap-3 hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
-                >
-                  <img
-                    src={getAvatarUrl(selectedConversation.userAvatar, selectedConversation.userId)}
-                    alt={selectedConversation.userName}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="font-semibold hover:text-white/80 transition-colors">{selectedConversation.userName}</h3>
-                    <p className="text-xs text-green-400">{selectedConversation.matchScore}% match • View profile →</p>
-                  </div>
-                </Link>
+                <div className="flex items-center gap-3">
+                  {/* Mobile Back Button */}
+                  <button
+                    onClick={() => setSelectedConversation(null)}
+                    className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
+                  >
+                    <FaArrowLeft className="text-white/70" />
+                  </button>
+
+                  <Link
+                    to={`/user/${selectedConversation.userId}`}
+                    className="flex items-center gap-3 hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors flex-1"
+                  >
+                    <img
+                      src={getAvatarUrl(selectedConversation.userAvatar, selectedConversation.userId)}
+                      alt={selectedConversation.userName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div className="min-w-0">
+                      <h3 className="font-semibold hover:text-white/80 transition-colors truncate">{selectedConversation.userName}</h3>
+                      <p className="text-xs text-green-400 truncate">{selectedConversation.matchScore}% match • View profile →</p>
+                    </div>
+                  </Link>
+                </div>
               </div>
 
               {/* Messages */}
@@ -335,7 +345,7 @@ function Messages() {
                           }
                         `}
                       >
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                        <p className="text-sm leading-relaxed break-words">{msg.content}</p>
                         <p className={`text-xs mt-1 ${isSent ? 'text-blue-200' : 'text-white/40'}`}>
                           {formatTime(msg.createdAt)}
                         </p>

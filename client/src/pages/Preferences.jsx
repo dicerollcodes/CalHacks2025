@@ -118,14 +118,14 @@ function Preferences() {
       <div className="max-w-4xl mx-auto px-6 py-24">
         {/* Page Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black uppercase tracking-tight mb-3"
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight mb-3"
               style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontStyle: 'italic' }}>
             Roommate Preferences
           </h1>
-          <p className="text-white/60 text-lg">
+          <p className="text-white/60 text-base sm:text-lg px-4">
             Help us find your perfect roommate match
           </p>
-          <p className="text-white/40 text-sm mt-2">
+          <p className="text-white/40 text-xs sm:text-sm mt-2 px-4">
             These preferences improve your match rankings in Connect
           </p>
         </div>
@@ -145,8 +145,8 @@ function Preferences() {
 
             {/* Sleep Type */}
             <div className="mb-6">
-              <label className="block text-sm text-white/60 mb-3">Are you an early riser or night owl?</label>
-              <div className="grid grid-cols-3 gap-3">
+              <label className="block text-xs sm:text-sm text-white/60 mb-3">Are you an early riser or night owl?</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { value: 'early-riser', label: '🌅 Early Riser', desc: 'Bed before 11pm' },
                   { value: 'night-owl', label: '🌙 Night Owl', desc: 'Bed after 12am' },
@@ -271,8 +271,8 @@ function Preferences() {
 
             {/* Cleanliness */}
             <div className="mb-6">
-              <label className="block text-sm text-white/60 mb-3">Cleanliness Level</label>
-              <div className="grid grid-cols-3 gap-3">
+              <label className="block text-xs sm:text-sm text-white/60 mb-3">Cleanliness Level</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { value: 'very-clean', label: '✨ Very Clean', desc: 'Spotless daily' },
                   { value: 'moderately-clean', label: '🧹 Moderately Clean', desc: 'Tidy weekly' },
@@ -296,8 +296,8 @@ function Preferences() {
 
             {/* Social Level */}
             <div className="mb-6">
-              <label className="block text-sm text-white/60 mb-3">Social Level</label>
-              <div className="grid grid-cols-3 gap-3">
+              <label className="block text-xs sm:text-sm text-white/60 mb-3">Social Level</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { value: 'very-social', label: '🎉 Very Social', desc: 'Always hanging' },
                   { value: 'moderately-social', label: '👋 Moderately Social', desc: 'Balanced mix' },
@@ -321,8 +321,8 @@ function Preferences() {
 
             {/* Guests */}
             <div className="mb-6">
-              <label className="block text-sm text-white/60 mb-3">How often do you have guests over?</label>
-              <div className="grid grid-cols-3 gap-3">
+              <label className="block text-xs sm:text-sm text-white/60 mb-3">How often do you have guests over?</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { value: 'often', label: '👥 Often', desc: 'Weekly+' },
                   { value: 'sometimes', label: '🤝 Sometimes', desc: 'Monthly' },
@@ -346,8 +346,8 @@ function Preferences() {
 
             {/* Smoking */}
             <div className="mb-6">
-              <label className="block text-sm text-white/60 mb-3">Smoking Preference</label>
-              <div className="grid grid-cols-3 gap-3">
+              <label className="block text-xs sm:text-sm text-white/60 mb-3">Smoking Preference</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { value: 'smoker', label: '🚬 Smoker', desc: 'I smoke' },
                   { value: 'outside-only', label: '🚪 Outside Only', desc: 'Not indoors' },
@@ -371,8 +371,8 @@ function Preferences() {
 
             {/* Pets */}
             <div>
-              <label className="block text-sm text-white/60 mb-3">Pet Situation</label>
-              <div className="grid grid-cols-3 gap-3">
+              <label className="block text-xs sm:text-sm text-white/60 mb-3">Pet Situation</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { value: 'has-pets', label: '🐾 Has Pets', desc: 'I have pets' },
                   { value: 'no-pets', label: '❌ No Pets', desc: 'Pet-free' },
