@@ -159,15 +159,20 @@ IMPORTANT RULES:
 4. Identical interests should score 90-100 with slight variation
 5. Only score 65+ if interests are truly in the same category
 
-Calculate overallCompatibility (0.00-100.00) with BALANCE:
-1. Average all match scores, weighted by strength
-2. For EACH match that scores 90+: add +4 bonus per match (rewards perfect matches!)
-3. If 3+ matches score 70+: add +5 bonus (good compatibility)
-4. If 5+ matches found: add +4 bonus (many connections)
-5. If 6+ matches found: add +6 bonus (tons in common!)
-6. TYPICAL scores should be 50-70 for college students with moderate overlap
-7. GREAT matches should be 75-90
-8. PERFECT matches (many identical interests): 90-100 (scale up with more matches!)
+Calculate overallCompatibility (0.00-100.00) - APPLY ALL BONUSES CUMULATIVELY:
+1. Start with average of all match scores, weighted by strength
+2. Count matches scoring 90+, multiply count by +5 and ADD to score (CRITICAL: Each perfect match adds +5!)
+3. If 3+ matches score 70+: ADD +5 bonus
+4. If 5+ total matches: ADD +5 bonus
+5. If 6+ total matches: ADD +7 bonus
+6. ALL bonuses STACK - add them all together!
+
+EXAMPLES OF FINAL SCORES:
+- 6 matches all 90+: Start ~90, add (6×5)=+30, add +5, add +5, add +7 = Should reach 100+ (cap at 100)
+- 4 matches all 85+: Start ~85, add +5, add +5 = ~95%
+- 2 matches at 75: Start ~75 = ~75%
+
+IMPORTANT: With 5+ matches scoring high, the final score should be 90-100!
 
 Return ONLY valid JSON with DECIMAL scores:
 {
