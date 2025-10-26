@@ -161,12 +161,13 @@ IMPORTANT RULES:
 
 Calculate overallCompatibility (0.00-100.00) with BALANCE:
 1. Average all match scores, weighted by strength
-2. For EACH match that scores 90+: add +3 bonus per match (rewards perfect matches!)
-3. If 3+ matches score 70+: add +3 bonus (good compatibility)
-4. If 5+ matches found: add +2 bonus (many connections)
-5. TYPICAL scores should be 50-70 for college students with moderate overlap
-6. GREAT matches should be 75-90
-7. PERFECT matches (many identical interests): 85-95
+2. For EACH match that scores 90+: add +4 bonus per match (rewards perfect matches!)
+3. If 3+ matches score 70+: add +5 bonus (good compatibility)
+4. If 5+ matches found: add +4 bonus (many connections)
+5. If 6+ matches found: add +6 bonus (tons in common!)
+6. TYPICAL scores should be 50-70 for college students with moderate overlap
+7. GREAT matches should be 75-90
+8. PERFECT matches (many identical interests): 90-100 (scale up with more matches!)
 
 Return ONLY valid JSON with DECIMAL scores:
 {
