@@ -93,7 +93,7 @@ export async function calculateMatch(userInterests, targetInterests, userName, t
   const user1Indexed = cleanUserInterests.map((interest, idx) => `[${idx}] ${interest}`);
   const user2Indexed = cleanTargetInterests.map((interest, idx) => `[${idx}] ${interest}`);
 
-  const prompt = `You are a semantic matching expert. Compare these two interest lists and find all meaningful matches.
+  const prompt = `You are a GENEROUS semantic matching expert helping college students find compatible roommates. Compare these interest lists and celebrate all connections!
 
 User 1 interests:
 ${user1Indexed.join('\n')}
@@ -101,58 +101,56 @@ ${user1Indexed.join('\n')}
 User 2 interests:
 ${user2Indexed.join('\n')}
 
-TASK: Find all interest pairs that are semantically similar or related. Consider synonyms, related concepts, and subcategories. ONLY match interests that have clear semantic overlap.
+TASK: Find ALL meaningful connections between interests. Be GENEROUS - college students often connect over related interests!
 
-SCORING GUIDE & EXAMPLES:
+SCORING PHILOSOPHY: Be optimistic! Students bond over shared enthusiasm, not just identical interests.
 
-95-100: IDENTICAL or SYNONYMS
+SCORING GUIDE:
+
+95-100: IDENTICAL or DIRECT SYNONYMS
 - "programming" and "coding" = 100
 - "soccer" and "football" = 100
 - "gym" and "working out" = 98
 
-85-94: EXTREMELY RELATED (specific types, very similar activities)
+85-94: VERY STRONGLY RELATED
 - "rock climbing" and "bouldering" = 92
 - "gaming" and "video games" = 90
-- "gaming" and "board games" = 88 (both gaming activities)
 - "League of Legends" and "MOBAs" = 90
 - "guitar" and "bass" = 88
+- "coffee" and "espresso" = 88
 
-70-84: SAME DOMAIN/FIELD (clearly related, overlapping skills/interests)
-- "guitar" and "music production" = 78
-- "basketball" and "sports" = 75
-- "reading" and "writing" = 72
-- "coffee" and "espresso" = 80 (espresso is type of coffee)
-- "anime" and "manga" = 75
+70-84: CLEARLY RELATED (same domain, complementary)
+- "guitar" and "music production" = 80
+- "basketball" and "sports" = 78
+- "reading" and "writing" = 75
+- "anime" and "manga" = 78
+- "hiking" and "camping" = 75
 
-50-69: SAME BROAD CATEGORY (related but distinct)
-- "League of Legends" and "Valorant" = 65 (both competitive games, different genres)
-- "hiking" and "camping" = 62
-- "basketball" and "soccer" = 60 (both team sports, different)
-- "indie music" and "alternative rock" = 65 (related music genres)
+55-69: RELATED INTERESTS (broad connection, conversation potential)
+- "League of Legends" and "Valorant" = 68
+- "basketball" and "soccer" = 65
+- "indie music" and "alternative rock" = 70
+- "gym" and "nutrition" = 65
+- "travel" and "photography" = 62
 
-30-49: LOOSELY CONNECTED (weak relationship)
-- "gym" and "nutrition" = 45
-- "travel" and "photography" = 40
-- "cooking" and "baking" = 45
-- "reading" and "Netflix" = 38 (both entertainment, very different)
+40-54: LOOSE CONNECTION (some overlap)
+- "cooking" and "baking" = 50
+- "reading" and "Netflix" = 45
 
-0-29: UNRELATED or NO MEANINGFUL CONNECTION
-- "basketball" and "cooking" = 5
-- "museum hopping" and "computer science" = 8 (no meaningful overlap)
-- "gaming" and "poetry" = 3
-- "hiking" and "chemistry" = 5
-- "guitar" and "sports" = 12
+Below 40: Only for truly unrelated interests
+- "basketball" and "poetry" = 15
+- "chemistry" and "dance" = 10
 
-CRITICAL RULES:
-1. Academic subjects (computer science, chemistry, math) rarely match with leisure activities (museum hopping, concerts) - score 0-20
-2. Physical activities (sports, gym, hiking) don't match with creative/intellectual pursuits (poetry, coding) - score 0-20
-3. "Gaming" typically means video games - it's HIGHLY related to board games (85+), not 60
-4. Be strict: only match if there's genuine semantic overlap
-5. Don't overweight tenuous connections
+IMPORTANT MATCHING RULES:
+1. Be GENEROUS with scores - students connect over enthusiasm!
+2. Find creative connections - "stock market" and "economics" are highly related
+3. Broad categories like "sports", "music", "art" still create strong bonds
+4. Related hobbies in the same lifestyle (outdoor activities, creative pursuits, etc.) should score 65+
+5. If there's ANY reasonable connection, score it 50+
 
-Return index numbers ONLY, NOT the interest text. This preserves original names.
+Return index numbers ONLY, NOT the interest text.
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON:
 {
   "matches": [
     {"user1Index": 0, "user2Index": 2, "score": 95, "reason": "brief explanation"},
@@ -161,10 +159,13 @@ Return ONLY valid JSON in this exact format:
   "overallCompatibility": 78
 }
 
-Calculate overallCompatibility (0-100) based on:
-1. Number of matches relative to total interests
-2. Quality of matches (higher scores = better)
-3. Distribution (many medium matches can be as good as few perfect matches)
+Calculate overallCompatibility (0-100) GENEROUSLY:
+1. If 50%+ of interests match at ANY score → minimum 70
+2. If 3+ strong matches (70+) → should be 80+
+3. If 2+ perfect matches (90+) → should be 85+
+4. Many medium matches (50-70) are GREAT for roommate compatibility!
+
+BE GENEROUS - these are college students looking for friends and roommates!
 
 Return ONLY the JSON, no other text.`;
 
@@ -228,28 +229,10 @@ Return ONLY the JSON, no other text.`;
     }
   }
 
-  // Use Claude's overall compatibility score
-  let rawMatchScore = Math.round(result.overallCompatibility || 0);
+  // Use Claude's overall compatibility score directly - NO PENALTIES
+  const matchScore = Math.round(result.overallCompatibility || 0);
 
-  // Calculate interest quality penalty for both users
-  const user1QualityMultiplier = calculateInterestQualityMultiplier(cleanUserInterests);
-  const user2QualityMultiplier = calculateInterestQualityMultiplier(cleanTargetInterests);
-
-  // Use the MINIMUM multiplier (penalize if either user has poor quality)
-  // This ensures we're not confident about matches when either profile is weak
-  const qualityMultiplier = Math.min(user1QualityMultiplier, user2QualityMultiplier);
-
-  // Apply quality penalty to the match score
-  const matchScore = Math.round(rawMatchScore * qualityMultiplier);
-
-  // Log the penalty transparently (not shown to users)
-  if (qualityMultiplier < 1.0) {
-    console.log(`\n⚠️  INTEREST QUALITY PENALTY APPLIED:`);
-    console.log(`   ${userName} quality: ${(user1QualityMultiplier * 100).toFixed(0)}% (${cleanUserInterests.length} interests)`);
-    console.log(`   ${targetName} quality: ${(user2QualityMultiplier * 100).toFixed(0)}% (${cleanTargetInterests.length} interests)`);
-    console.log(`   Combined multiplier: ${(qualityMultiplier * 100).toFixed(0)}%`);
-    console.log(`   Raw score: ${rawMatchScore}% → Adjusted score: ${matchScore}%\n`);
-  }
+  console.log(`\n✅ Match Score: ${matchScore}% (no penalties applied)`);
 
   // Generate conversation starters if score is high enough
   let conversationStarters = [];
