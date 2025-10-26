@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema({
     maxlength: 20,
     match: /^[a-z0-9_]+$/  // Only lowercase letters, numbers, and underscores
   },
+  // Search mode: what type of connections are they looking for?
+  searchMode: {
+    type: String,
+    enum: ['roommates', 'friends'],
+    default: 'roommates'
+  },
   // Roommate preferences
   roommatePreferences: {
     // Sleep schedule

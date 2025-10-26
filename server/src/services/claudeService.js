@@ -93,7 +93,7 @@ export async function calculateMatch(userInterests, targetInterests, userName, t
   const user1Indexed = cleanUserInterests.map((interest, idx) => `[${idx}] ${interest}`);
   const user2Indexed = cleanTargetInterests.map((interest, idx) => `[${idx}] ${interest}`);
 
-  const prompt = `You are a GENEROUS semantic matching expert helping college students find compatible roommates. Compare these interest lists and celebrate all connections!
+  const prompt = `You are a PRECISE semantic matching expert helping college students find compatible roommates. Compare these interest lists and find connections with GRANULAR precision!
 
 User 1 interests:
 ${user1Indexed.join('\n')}
@@ -101,71 +101,70 @@ ${user1Indexed.join('\n')}
 User 2 interests:
 ${user2Indexed.join('\n')}
 
-TASK: Find ALL meaningful connections between interests. Be GENEROUS - college students often connect over related interests!
+CRITICAL: Use PRECISE decimal scores (0.00-100.00) for each match. Don't round to multiples of 5!
 
-SCORING PHILOSOPHY: Be optimistic! Students bond over shared enthusiasm, not just identical interests.
+SCORING PHILOSOPHY: REWARD EXACT MATCHES HEAVILY. Close matches should get high scores but not identical scores.
 
-SCORING GUIDE:
+PRECISE SCORING GUIDE:
 
-95-100: IDENTICAL or DIRECT SYNONYMS
-- "programming" and "coding" = 100
-- "soccer" and "football" = 100
-- "gym" and "working out" = 98
+95-100: IDENTICAL or DIRECT SYNONYMS (use decimals!)
+- "programming" and "coding" = 98.5
+- "soccer" and "football (soccer)" = 100.0
+- "gym" and "working out" = 96.2
+- "video games" and "gaming" = 99.1
 
-85-94: VERY STRONGLY RELATED
-- "rock climbing" and "bouldering" = 92
-- "gaming" and "video games" = 90
-- "League of Legends" and "MOBAs" = 90
-- "guitar" and "bass" = 88
-- "coffee" and "espresso" = 88
+85-94: VERY STRONGLY RELATED (be precise!)
+- "rock climbing" and "bouldering" = 91.3
+- "League of Legends" and "MOBAs" = 89.7
+- "guitar" and "bass" = 87.4
+- "coffee" and "espresso" = 88.9
+- "hiking" and "backpacking" = 92.6
 
-70-84: CLEARLY RELATED (same domain, complementary)
-- "guitar" and "music production" = 80
-- "basketball" and "sports" = 78
-- "reading" and "writing" = 75
-- "anime" and "manga" = 78
-- "hiking" and "camping" = 75
+70-84: CLEARLY RELATED (same domain)
+- "guitar" and "music production" = 79.4
+- "basketball" and "sports" = 76.8
+- "reading" and "writing" = 74.2
+- "anime" and "manga" = 81.5
+- "hiking" and "camping" = 77.9
 
-55-69: RELATED INTERESTS (broad connection, conversation potential)
-- "League of Legends" and "Valorant" = 68
-- "basketball" and "soccer" = 65
-- "indie music" and "alternative rock" = 70
-- "gym" and "nutrition" = 65
-- "travel" and "photography" = 62
+55-69: RELATED INTERESTS (conversation potential)
+- "League of Legends" and "Valorant" = 67.3
+- "basketball" and "soccer" = 63.8
+- "indie music" and "alternative rock" = 68.7
+- "gym" and "nutrition" = 64.2
+- "travel" and "photography" = 61.5
 
-40-54: LOOSE CONNECTION (some overlap)
-- "cooking" and "baking" = 50
-- "reading" and "Netflix" = 45
+40-54: LOOSE CONNECTION
+- "cooking" and "baking" = 48.3
+- "reading" and "Netflix" = 44.6
 
-Below 40: Only for truly unrelated interests
-- "basketball" and "poetry" = 15
-- "chemistry" and "dance" = 10
+Below 40: Unrelated
+- "basketball" and "poetry" = 14.2
+- "chemistry" and "dance" = 9.7
 
-IMPORTANT MATCHING RULES:
-1. Be GENEROUS with scores - students connect over enthusiasm!
-2. Find creative connections - "stock market" and "economics" are highly related
-3. Broad categories like "sports", "music", "art" still create strong bonds
-4. Related hobbies in the same lifestyle (outdoor activities, creative pursuits, etc.) should score 65+
-5. If there's ANY reasonable connection, score it 50+
+IMPORTANT RULES:
+1. USE DECIMALS - no rounding to 5s or 10s! Exact matches should differ slightly
+2. REWARD SPECIFICITY - "late night gaming" and "League of Legends" = 82.4 (both gaming, one more specific)
+3. Multiple strong matches should boost overall score significantly
+4. Identical interests should score 97-100, not all exactly the same
+5. Related interests in same domain: 70-85 range with variation
 
-Return index numbers ONLY, NOT the interest text.
+Calculate overallCompatibility (0.00-100.00) with PRECISION:
+1. Average all match scores, weighted by strength
+2. If 2+ matches score 95+: add +5 bonus (perfect match boost)
+3. If 4+ matches score 70+: add +3 bonus (strong connection boost)
+4. Final score should be a PRECISE decimal that reflects the UNIQUE combination
 
-Return ONLY valid JSON:
+CRITICAL: Use PRECISE DECIMAL SCORING. Two users with "gym, basketball, soccer" should NOT get the same exact score as two with "gym, reading, coding"!
+
+Return ONLY valid JSON with DECIMAL scores:
 {
   "matches": [
-    {"user1Index": 0, "user2Index": 2, "score": 95, "reason": "brief explanation"},
-    {"user1Index": 1, "user2Index": 0, "score": 75, "reason": "brief explanation"}
+    {"user1Index": 0, "user2Index": 2, "score": 94.7, "reason": "brief explanation"},
+    {"user1Index": 1, "user2Index": 0, "score": 73.2, "reason": "brief explanation"}
   ],
-  "overallCompatibility": 78
+  "overallCompatibility": 76.34
 }
-
-Calculate overallCompatibility (0-100) GENEROUSLY:
-1. If 50%+ of interests match at ANY score → minimum 70
-2. If 3+ strong matches (70+) → should be 80+
-3. If 2+ perfect matches (90+) → should be 85+
-4. Many medium matches (50-70) are GREAT for roommate compatibility!
-
-BE GENEROUS - these are college students looking for friends and roommates!
 
 Return ONLY the JSON, no other text.`;
 
@@ -229,8 +228,9 @@ Return ONLY the JSON, no other text.`;
     }
   }
 
-  // Use Claude's overall compatibility score directly - NO PENALTIES
-  const matchScore = Math.round(result.overallCompatibility || 0);
+  // Use Claude's overall compatibility score with decimal precision - NO PENALTIES
+  // Round to 1 decimal place for precision without excessive digits
+  const matchScore = Math.round((result.overallCompatibility || 0) * 10) / 10;
 
   console.log(`\n✅ Match Score: ${matchScore}% (no penalties applied)`);
 

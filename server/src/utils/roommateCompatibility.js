@@ -153,12 +153,14 @@ export function calculateRoommateCompatibility(prefs1, prefs2) {
  * @param {number} interestScore - Pure interest compatibility (0-100)
  * @param {object} prefs1 - User 1's roommate preferences
  * @param {object} prefs2 - User 2's roommate preferences
- * @returns {number} Combined score (0-100)
+ * @returns {number} Combined score (0-100, with 1 decimal precision)
  */
 export function calculateCombinedRoommateScore(interestScore, prefs1, prefs2) {
   const lifestyleScore = calculateRoommateCompatibility(prefs1, prefs2);
-  // Average of interests and lifestyle
-  return Math.round((interestScore + lifestyleScore) / 2);
+  // Weighted average: interests 60%, lifestyle 40%
+  // Preserves decimal precision for more granular scoring
+  const combined = (interestScore * 0.6) + (lifestyleScore * 0.4);
+  return Math.round(combined * 10) / 10;
 }
 
 function getTimeDifference(time1, time2) {
