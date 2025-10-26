@@ -7,6 +7,7 @@ import AddInterests from './pages/AddInterests'
 import Messages from './pages/Messages'
 import Explore from './pages/Explore'
 import Connect from './pages/Connect'
+import Preferences from './pages/Preferences'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/messages" element={<Messages />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/connect" element={<Connect />} />
+        <Route path="/preferences" element={<Preferences />} />
       </Routes>
     </BrowserRouter>
   )

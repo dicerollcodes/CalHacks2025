@@ -42,21 +42,41 @@ router.get('/:username', async (req, res) => {
     // HARD FILTER: Gender preferences (non-negotiable)
     if (user.roommatePreferences?.genderPreference && user.roommatePreferences.genderPreference !== 'no-preference') {
       potentialMatches = potentialMatches.filter(candidate => {
-        if (!candidate.roommatePreferences?.gender) return true; // No gender set, allow
+        // If user has specific preference, candidate MUST have matching gender set
+        if (!candidate.roommatePreferences?.gender) return false; // No gender set = filtered out
         return candidate.roommatePreferences.gender === user.roommatePreferences.genderPreference;
       });
-      console.log(`  → Filtered to ${potentialMatches.length} by gender preference`);
+      console.log(`  → Filtered to ${potentialMatches.length} by gender preference (strict)`);
     }
 
     // REVERSE FILTER: Check if candidates' gender preferences match user's gender
     if (user.roommatePreferences?.gender) {
       potentialMatches = potentialMatches.filter(candidate => {
-        if (!candidate.roommatePreferences?.genderPreference) return true;
+        if (!candidate.roommatePreferences?.genderPreference) return true; // No preference = allow
         if (candidate.roommatePreferences.genderPreference === 'no-preference') return true;
         return candidate.roommatePreferences.genderPreference === user.roommatePreferences.gender;
       });
       console.log(`  → Filtered to ${potentialMatches.length} by reverse gender check`);
     }
+
+    // HARD FILTER: Pet allergies (non-negotiable)
+    if (user.roommatePreferences?.pets === 'allergic') {
+      potentialMatches = potentialMatches.filter(candidate => {
+        if (!candidate.roommatePreferences?.pets) return true; // No info = allow
+        return candidate.roommatePreferences.pets !== 'has-pets'; // Filter out has-pets
+      });
+      console.log(`  → Filtered to ${potentialMatches.length} by pet allergy (user is allergic)`);
+    }
+
+    // REVERSE FILTER: If candidate is allergic, user can't have pets
+    potentialMatches = potentialMatches.filter(candidate => {
+      if (candidate.roommatePreferences?.pets === 'allergic') {
+        if (!user.roommatePreferences?.pets) return true;
+        return user.roommatePreferences.pets !== 'has-pets';
+      }
+      return true;
+    });
+    console.log(`  → Filtered to ${potentialMatches.length} by reverse pet allergy check`);
 
     // Calculate compatibility for remaining candidates
     const recommendations = potentialMatches.map(candidate => {

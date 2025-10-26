@@ -63,6 +63,12 @@ export default function Header() {
               >
                 💬 Messages
               </Link>
+              <Link
+                to="/preferences"
+                className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-2"
+              >
+                ⚙️ Settings
+              </Link>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-full transition-all text-white text-sm font-medium"

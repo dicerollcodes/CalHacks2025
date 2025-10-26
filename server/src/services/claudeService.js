@@ -203,9 +203,13 @@ Return ONLY the JSON, no other text.`;
     ];
   }
 
+  // Deduplicate shared interests (case-insensitive)
+  const uniqueSharedInterests = [...new Set(sharedInterests.map(i => i.toLowerCase()))]
+    .map(lower => sharedInterests.find(i => i.toLowerCase() === lower));
+
   const finalResult = {
     matchScore,
-    sharedInterests,
+    sharedInterests: uniqueSharedInterests,
     relatedInterests,
     conversationStarters
   };

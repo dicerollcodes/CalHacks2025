@@ -315,6 +315,36 @@ router.get('/:username/private-interests', async (req, res) => {
 });
 
 /**
+ * PUT /api/users/:username/preferences
+ * Update user roommate preferences
+ */
+router.put('/:username/preferences', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { roommatePreferences } = req.body;
+
+    // Find the existing user
+    const user = await User.findOne({ username: username.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update roommate preferences
+    user.roommatePreferences = roommatePreferences;
+    await user.save();
+    await user.populate('schoolId');
+
+    res.json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error('Error updating preferences:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * PUT /api/users/:username
  * Update user profile
  */

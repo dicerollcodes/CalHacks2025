@@ -95,12 +95,18 @@ function Connect() {
             <p className="text-white/60 mb-6">
               Add more interests and set your roommate preferences to find matches!
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 justify-center flex-wrap">
               <Link
                 to="/explore"
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-semibold transition-colors"
               >
                 ✨ Explore Interests
+              </Link>
+              <Link
+                to="/preferences"
+                className="px-6 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-full font-semibold transition-colors"
+              >
+                🏠 Set Roommate Preferences
               </Link>
               <Link
                 to={`/user/${userId}`}

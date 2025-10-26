@@ -318,6 +318,9 @@ function UserProfileNew() {
       } else if (editedInterests.length > 0) {
         setHighlightedInterestIndex(editedInterests.length - 1)
       }
+    } else if (e.key !== 'Backspace' && highlightedInterestIndex >= 0) {
+      // User started typing - deselect highlighted interest
+      setHighlightedInterestIndex(-1)
     }
   }
 
@@ -488,14 +491,22 @@ function UserProfileNew() {
             {user.schoolId?.name}
           </p>
 
-          {/* Edit Button (only shown on own profile) */}
+          {/* Edit Buttons (only shown on own profile) */}
           {isOwnProfile && !isEditMode && (
-            <button
-              onClick={startEditMode}
-              className="mb-4 px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full transition-all text-white text-sm font-medium"
-            >
-              ✏️ Edit Profile
-            </button>
+            <div className="flex gap-3 justify-center mb-4">
+              <button
+                onClick={startEditMode}
+                className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full transition-all text-white text-sm font-medium"
+              >
+                ✏️ Edit Profile
+              </button>
+              <button
+                onClick={() => window.location.href = '/preferences'}
+                className="px-6 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-full transition-all text-white text-sm font-medium"
+              >
+                🏠 Roommate Preferences
+              </button>
+            </div>
           )}
 
           {/* Social Links */}

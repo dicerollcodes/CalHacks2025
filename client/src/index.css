@@ -233,3 +233,15 @@ code {
   background-size: 1000px 100%;
   animation: shimmer 2s infinite;
 }
+
+/* Time input styling */
+input[type="time"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1);
+  opacity: 0.8;
+}
