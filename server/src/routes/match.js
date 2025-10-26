@@ -4,6 +4,7 @@ import MatchCache from '../models/MatchCache.js';
 import Match from '../models/Match.js';
 import { calculateMatch } from '../services/claudeService.js';
 import { normalizeInterests, createMatchCacheKey } from '../utils/helpers.js';
+import { passesHardFilters, calculateRoommateCompatibility, calculateCombinedRoommateScore } from '../utils/roommateCompatibility.js';
 
 const router = express.Router();
 
@@ -124,10 +125,32 @@ router.post('/', async (req, res) => {
       }
     }
 
+    // Calculate roommate compatibility scores
+    const isEligibleRoommate = passesHardFilters(viewer.roommatePreferences, target.roommatePreferences);
+    const lifestyleScore = calculateRoommateCompatibility(viewer.roommatePreferences, target.roommatePreferences);
+    const combinedRoommateScore = calculateCombinedRoommateScore(matchData.matchScore, viewer.roommatePreferences, target.roommatePreferences);
+
     res.json({
       success: true,
       match: {
+        // Friend compatibility (pure interests, no roommate factors)
+        friendScore: matchData.matchScore,
+
+        // Roommate compatibility (lifestyle preferences only)
+        lifestyleScore: lifestyleScore,
+
+        // Combined roommate score (average of interests + lifestyle)
+        roommateScore: combinedRoommateScore,
+
+        // Roommate eligibility
+        isEligibleRoommate: isEligibleRoommate,
+        roommateIneligibilityReason: !isEligibleRoommate
+          ? 'Does not pass gender preference or pet allergy filters'
+          : null,
+
+        // Legacy field for backwards compatibility
         score: matchData.matchScore,
+
         revealDetails: shouldRevealDetails,
         sharedInterests: shouldRevealDetails ? matchData.sharedInterests : [],
         relatedInterests: shouldRevealDetails ? matchData.relatedInterests : [],
@@ -149,7 +172,8 @@ router.post('/', async (req, res) => {
       _debug: {
         fromCache,
         cacheKey,
-        thresholdMet: shouldRevealDetails
+        thresholdMet: shouldRevealDetails,
+        hasRoommatePreferences: !!(viewer.roommatePreferences && target.roommatePreferences)
       }
     });
   } catch (error) {

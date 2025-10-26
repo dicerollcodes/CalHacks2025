@@ -4,7 +4,6 @@ import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
 import { getUser, calculateMatch } from '../services/api'
 import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
 import IceCube from '../components/IceCube'
-import ScoreReveal from '../components/ScoreReveal'
 import MatchRevealNew from '../components/MatchRevealNew'
 import Header from '../components/Header'
 
@@ -848,14 +847,96 @@ function UserProfileNew() {
               {showScore && matchData && hideIceCube && (
                 <div className="animate-fade-in py-8" style={{ position: 'relative', zIndex: 10 }}>
                   {matchData.revealDetails ? (
-                    <ScoreReveal
-                      score={matchData.score}
-                      onComplete={handleScoreComplete}
-                    />
+                    <>
+                      {/* Dual Score Display */}
+                      <div className="max-w-2xl mx-auto px-6 mb-8">
+                        {/* Roommate Eligibility Badge */}
+                        {matchData.isEligibleRoommate !== undefined && (
+                          <div className="text-center mb-6">
+                            {matchData.isEligibleRoommate ? (
+                              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full text-green-300 text-sm font-semibold">
+                                ✅ Eligible Roommate Match
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-full text-red-300 text-sm font-semibold">
+                                🚫 Not Eligible as Roommate
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Scores Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Friend Compatibility */}
+                          <div
+                            className="p-6 rounded-2xl border border-white/10"
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.03)',
+                              backdropFilter: 'blur(10px)'
+                            }}
+                          >
+                            <div className="text-xs text-white/40 uppercase tracking-widest mb-2 text-center">Friend Match</div>
+                            <div className={`text-5xl font-black text-center mb-2 ${matchData.friendScore >= 70 ? 'text-green-400' : 'text-white/70'}`}>
+                              {matchData.friendScore}%
+                            </div>
+                            <div className="text-xs text-white/50 text-center">Pure Interest Compatibility</div>
+                            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-3">
+                              <div
+                                className={`h-full ${matchData.friendScore >= 70 ? 'bg-green-500' : 'bg-white/30'}`}
+                                style={{ width: `${matchData.friendScore}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Roommate Compatibility */}
+                          <div
+                            className="p-6 rounded-2xl border border-white/10"
+                            style={{
+                              background: matchData.isEligibleRoommate
+                                ? 'rgba(59, 130, 246, 0.05)'
+                                : 'rgba(239, 68, 68, 0.05)',
+                              backdropFilter: 'blur(10px)',
+                              borderColor: matchData.isEligibleRoommate ? 'rgba(59, 130, 246, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+                            }}
+                          >
+                            <div className="text-xs text-white/40 uppercase tracking-widest mb-2 text-center">Roommate Match</div>
+                            <div className={`text-5xl font-black text-center mb-2 ${
+                              !matchData.isEligibleRoommate ? 'text-red-400' :
+                              matchData.roommateScore >= 70 ? 'text-blue-400' : 'text-white/70'
+                            }`}>
+                              {matchData.isEligibleRoommate ? `${matchData.roommateScore}%` : 'N/A'}
+                            </div>
+                            <div className="text-xs text-white/50 text-center">
+                              {matchData.isEligibleRoommate ? 'Interests + Lifestyle' : 'Hard Filter Failed'}
+                            </div>
+                            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-3">
+                              <div
+                                className={`h-full ${
+                                  !matchData.isEligibleRoommate ? 'bg-red-500' :
+                                  matchData.roommateScore >= 70 ? 'bg-blue-500' : 'bg-white/30'
+                                }`}
+                                style={{ width: matchData.isEligibleRoommate ? `${matchData.roommateScore}%` : '100%' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Explanation */}
+                        <div className="mt-4 text-center text-xs text-white/40">
+                          <p>Friend Match = Interests only • Roommate Match = (Interests + Lifestyle Preferences) / 2</p>
+                          {!matchData.isEligibleRoommate && (
+                            <p className="mt-2 text-red-300/60">⚠️ {matchData.roommateIneligibilityReason}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Trigger chip reveal */}
+                      {setTimeout(() => handleScoreComplete(), 500) && null}
+                    </>
                   ) : (
                     <div className="text-center">
                       <div className="text-6xl font-bold text-white/70 mb-4">
-                        {matchData.score}%
+                        {matchData.score || matchData.friendScore}%
                       </div>
                       <p className="text-white/50 max-w-md mx-auto">
                         {matchData.privacyMessage}
@@ -878,7 +959,7 @@ function UserProfileNew() {
           />
           
           {/* Conversation Starters */}
-          {matchData?.score >= 70 && matchData?.sharedInterests?.length > 0 && (
+          {(matchData?.friendScore || matchData?.score) >= 70 && matchData?.sharedInterests?.length > 0 && (
             <div className="w-full pb-6 px-6 mt-8">
               <div className="max-w-2xl mx-auto">
                 <h3

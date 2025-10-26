@@ -152,20 +152,37 @@ function Connect() {
                 <div className="mb-4 pl-12">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-white/60">Interest Match</span>
-                    <span className={`text-lg font-bold ${
-                      rec.interestScore >= 70 ? 'text-green-400' : 'text-white/70'
-                    }`}>
-                      {rec.interestScore}%
-                    </span>
+                    {rec.hasInterestScore ? (
+                      <span className={`text-lg font-bold ${
+                        rec.interestScore >= 70 ? 'text-green-400' : 'text-white/70'
+                      }`}>
+                        {rec.interestScore}%
+                      </span>
+                    ) : (
+                      <span className="text-lg font-bold text-white/40">
+                        ?
+                      </span>
+                    )}
                   </div>
                   <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${
-                        rec.interestScore >= 70 ? 'bg-green-500' : 'bg-white/30'
-                      }`}
-                      style={{ width: `${rec.interestScore}%` }}
-                    />
+                    {rec.hasInterestScore ? (
+                      <div
+                        className={`h-full ${
+                          rec.interestScore >= 70 ? 'bg-green-500' : 'bg-white/30'
+                        }`}
+                        style={{ width: `${rec.interestScore}%` }}
+                      />
+                    ) : (
+                      <div className="h-full bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 animate-pulse" />
+                    )}
                   </div>
+
+                  {/* Break ice hint */}
+                  {!rec.hasInterestScore && (
+                    <div className="mt-2 text-xs text-white/40 italic">
+                      🧊 Break the ice to reveal compatibility
+                    </div>
+                  )}
 
                   {/* Roommate Preview */}
                   {rec.preview.hasPreferences && (
@@ -190,7 +207,7 @@ function Connect() {
                     to={`/user/${rec.username}`}
                     className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-center font-medium transition-colors flex items-center justify-center gap-2"
                   >
-                    View Profile
+                    {rec.hasInterestScore ? 'View Profile' : '🧊 Break the Ice'}
                     <FaArrowRight className="text-sm" />
                   </Link>
                   {rec.canMessage ? (
@@ -203,8 +220,10 @@ function Connect() {
                       Message
                     </Link>
                   ) : (
-                    <div className="px-4 py-2 bg-white/5 text-white/30 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed">
-                      <span className="text-xs">Need 70%+</span>
+                    <div className="px-4 py-2 bg-white/5 text-white/30 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed" title={!rec.hasInterestScore ? "Break the ice first to unlock messaging" : "Need 70%+ match to message"}>
+                      <span className="text-xs">
+                        {!rec.hasInterestScore ? '🔒' : 'Need 70%+'}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -218,11 +237,11 @@ function Connect() {
           <div className="mt-12 text-center">
             <div className="inline-block px-6 py-4 bg-white/5 rounded-2xl border border-white/10">
               <p className="text-sm text-white/60">
-                <span className="text-white/80 font-semibold">💡 Pro Tip:</span> Recommendations are ranked by a secret algorithm
-                that combines your interests with roommate lifestyle preferences.
+                <span className="text-white/80 font-semibold">💡 How it works:</span> Rankings use a secret algorithm
+                combining interests (60%) + roommate preferences (40%). Gender and pet allergies are hard filters.
               </p>
               <p className="text-xs text-white/40 mt-2">
-                You need 70%+ interest match to message someone.
+                "Interest Match" shows pure interest compatibility (no roommate factors). Break the ice to reveal scores. Need 70%+ to message.
               </p>
             </div>
           </div>
