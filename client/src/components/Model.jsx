@@ -4,7 +4,7 @@ import { useGLTF, MeshTransmissionMaterial, Text } from '@react-three/drei';
 import { useThree, useFrame } from '@react-three/fiber';
 import iceModel from './ICE.glb?url';
 
-export default function Model(props) {
+export default function Model({ onAnimationComplete, disabled, ...props }) {
     const { viewport } = useThree();
     const groupRef = useRef();
     const gltf = useGLTF(iceModel);
@@ -23,10 +23,10 @@ export default function Model(props) {
     const explodeProgress = useRef(0);
     const explodeTarget = useRef(0);
 
-    // Animation timing (in seconds)
-    const shakeDuration1 = 0.4;
-    const pauseDuration = 0.15;
-    const shakeDuration2 = 0.3;
+    // Animation timing (in seconds) - 2X FASTER
+    const shakeDuration1 = 0.1;   // Was 0.2
+    const pauseDuration = 0.04;   // Was 0.08
+    const shakeDuration2 = 0.075; // Was 0.15
 
     // Configurable explosion distances per shard. You can edit these values!
     // We'll generate staggered distances for realism (not a perfect grid)
@@ -109,9 +109,9 @@ export default function Model(props) {
                     }
                 }
 
-                // Assign staggered explosion distance for realism (between 1.0 and 1.75)
+                // Assign staggered explosion distance for realism (between 2.5 and 4.5 - MUCH FARTHER)
                 if (!shardDistances.current[name]) {
-                    shardDistances.current[name] = 1.0 + Math.random() * 1;
+                    shardDistances.current[name] = 2.5 + Math.random() * 2;
                 }
 
                 // Random rotation axis and speed for spinning during explosion
@@ -212,13 +212,18 @@ export default function Model(props) {
 
                     if (explodeProgress.current >= 0.99) {
                         setAnimState('exploded');
+                        // Call the callback once when explosion completes
+                        if (!hasCalledCallback.current && onAnimationComplete) {
+                            hasCalledCallback.current = true;
+                            onAnimationComplete();
+                        }
                     }
                 }
             }
         }
 
-        // Smooth progress towards target
-        explodeProgress.current += (explodeTarget.current - explodeProgress.current) * 0.08;
+        // Smooth progress towards target - MUCH FASTER explosion (2x speed)
+        explodeProgress.current += (explodeTarget.current - explodeProgress.current) * 0.30;
 
         // Update mesh transforms directly for smooth per-frame animation
         if (partsRef.current.length > 0 && partsMeshRefs.current.length > 0) {
@@ -255,6 +260,8 @@ export default function Model(props) {
 
     // click/tap to start the animation sequence (only once)
     function handleClick() {
+        if (disabled) return; // Don't allow clicking if disabled
+
         if (animState === 'idle') {
             // Start shake -> pause -> shake -> explode sequence
             setAnimState('shake1');
@@ -280,21 +287,19 @@ export default function Model(props) {
                         position={[p.basePos.x, p.basePos.y, p.basePos.z]}
                         quaternion={p.quaternion}
                         scale={p.scale}
-                        castShadow
-                        receiveShadow
                         renderOrder={i}
                         visible={!hideBase}
                     >
                         <MeshTransmissionMaterial
-                            thickness={0.96}
-                            transmission={1}
-                            roughness={0.16}
-                            ior={1.5}
-                            chromaticAberration={0.1}
-                            distortion={0.18}
-                            anisotropy={0.1}
-                            reflectivity={0.3}
-                            backside={true}
+                            thickness={0.5}
+                            transmission={0.95}
+                            roughness={0.1}
+                            ior={1.3}
+                            chromaticAberration={0.03}
+                            distortion={0.1}
+                            anisotropy={0}
+                            reflectivity={0.2}
+                            backside={false}
                             depthWrite={false}
                             toneMapped={false}
                         />

@@ -51,9 +51,11 @@ function UserProfileNew() {
 
   // Animation states
   const [cubeShattered, setCubeShattered] = useState(false)
+  const [animationComplete, setAnimationComplete] = useState(false)
   const [hideIceCube, setHideIceCube] = useState(false)
   const [showScore, setShowScore] = useState(false)
   const [showChips, setShowChips] = useState(false)
+  const [apiComplete, setApiComplete] = useState(false)
 
   // Count-up animations for scores (rounded to integers for main display)
   const animatedFriendScore = useCountUp(
@@ -71,9 +73,11 @@ function UserProfileNew() {
     // Reset all state when username changes
     setMatchData(null)
     setCubeShattered(false)
+    setAnimationComplete(false)
     setHideIceCube(false)
     setShowScore(false)
     setShowChips(false)
+    setApiComplete(false)
     setCalculating(false)
     setError(null)
     setIsEditMode(false)
@@ -94,7 +98,7 @@ function UserProfileNew() {
     }
   }
 
-  async function handleShatterIce() {
+  async function handleCubeClick() {
     // Check if user is logged in
     if (!isAuthenticated() || !loggedInUser) {
       alert('Please log in to see your compatibility!')
@@ -104,28 +108,38 @@ function UserProfileNew() {
     // Prevent double-shattering
     if (calculating || cubeShattered) return
 
-    try {
-      setCalculating(true)
-      setCubeShattered(true)
+    setCalculating(true)
+    setCubeShattered(true)
 
-      // Fetch match data using logged-in user's username
+    try {
+      // Start API call immediately
       const response = await calculateMatch(loggedInUser.username, username)
       setMatchData(response.match)
-
-      // Hide ice cube after particles finish (1.5s for full animation)
-      setTimeout(() => {
-        setHideIceCube(true)
-      }, 1500)
-
-      // Show score after ice cube is hidden
-      setTimeout(() => {
-        setShowScore(true)
-      }, 1600)
+      setApiComplete(true)
     } catch (err) {
       alert('Failed to calculate match: ' + err.message)
       setCubeShattered(false)
       setCalculating(false)
+      setApiComplete(false)
     }
+  }
+
+  async function handleAnimationComplete() {
+    setAnimationComplete(true)
+
+    // Wait for API if not done yet
+    const checkApi = setInterval(() => {
+      if (apiComplete) {
+        clearInterval(checkApi)
+        // Hide ice cube and show score
+        setTimeout(() => {
+          setHideIceCube(true)
+        }, 100)
+        setTimeout(() => {
+          setShowScore(true)
+        }, 200)
+      }
+    }, 50)
   }
 
   function handleScoreComplete() {
@@ -837,20 +851,11 @@ function UserProfileNew() {
                   overflow: 'visible',
                   height: cubeShattered ? 0 : 'auto'
                 }}>
-                  <IceCube onShatter={handleShatterIce} disabled={calculating} />
-                  {!cubeShattered && (
-                    <p className="mt-2 text-white/40 text-sm uppercase tracking-widest">
-                      {isOwnProfile
-                        ? 'THIS IS YOUR PROFILE'
-                        : isAuthenticated()
-                        ? 'TAP TO SHATTER THE ICE'
-                        : 'Login to see compatibility'}
-                    </p>
-                  )}
+                  <IceCube onShatter={handleAnimationComplete} onClick={handleCubeClick} disabled={calculating} />
                 </div>
               )}
 
-              {cubeShattered && !showScore && (
+              {animationComplete && !showScore && (
                 <div className="text-center py-8" style={{ position: 'relative', zIndex: 5 }}>
                   <div className="text-6xl font-bold text-white/50">
                     <span className="inline-block animate-fade-in-out" style={{ animationDelay: '0ms' }}>.</span>

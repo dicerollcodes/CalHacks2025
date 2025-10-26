@@ -9,6 +9,7 @@ import Messages from './pages/Messages'
 import Explore from './pages/Explore'
 import Connect from './pages/Connect'
 import Preferences from './pages/Preferences'
+import VideoExportPage from './pages/VideoExportPage'
 import ScrollToTop from './components/ScrollToTop'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/connect" element={<Connect />} />
         <Route path="/preferences" element={<Preferences />} />
+        <Route path="/export-video" element={<VideoExportPage />} />
       </Routes>
     </BrowserRouter>
   )
