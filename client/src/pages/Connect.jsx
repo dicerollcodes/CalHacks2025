@@ -12,8 +12,6 @@ function Connect() {
 
   const [loading, setLoading] = useState(true)
   const [recommendations, setRecommendations] = useState([])
-  const [searchMode, setSearchMode] = useState('roommates')
-  const [updatingMode, setUpdatingMode] = useState(false)
 
   useEffect(() => {
     // Check authentication
@@ -23,47 +21,8 @@ function Connect() {
       return
     }
 
-    loadUserData()
     loadRecommendations()
   }, [userId, navigate])
-
-  async function loadUserData() {
-    try {
-      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${userId}` : `/api/users/${userId}`
-      const response = await fetch(apiUrl)
-      if (response.ok) {
-        const data = await response.json()
-        setSearchMode(data.user.searchMode || 'roommates')
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error)
-    }
-  }
-
-  async function updateSearchMode(newMode) {
-    try {
-      setUpdatingMode(true)
-      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${userId}` : `/api/users/${userId}`
-      const response = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ searchMode: newMode })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update search mode')
-      }
-
-      setSearchMode(newMode)
-      // Reload recommendations with new mode
-      loadRecommendations()
-    } catch (error) {
-      console.error('Error updating search mode:', error)
-      alert('Failed to update search mode')
-    } finally {
-      setUpdatingMode(false)
-    }
-  }
 
   async function loadRecommendations() {
     try {
@@ -102,64 +61,18 @@ function Connect() {
 
       <div className="max-w-6xl mx-auto px-6 py-24">
         {/* Page Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-12">
           <h1 className="text-5xl font-black uppercase tracking-tight mb-3"
               style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontStyle: 'italic' }}>
             Connect
           </h1>
           <p className="text-white/60 text-lg">
-            {searchMode === 'roommates'
-              ? 'Discover your best roommate matches based on compatibility'
-              : 'Find friends who share your interests'}
+            Discover your best roommate matches based on compatibility
           </p>
           <p className="text-white/40 text-sm mt-2">
-            {searchMode === 'roommates'
-              ? 'Ranked by our secret algorithm combining interests and lifestyle preferences'
-              : 'Ranked purely by shared interests'}
+            Ranked by our secret algorithm combining interests and lifestyle preferences
           </p>
         </div>
-
-        {/* Search Mode Toggle */}
-        <div className="flex justify-center mb-8">
-          <div
-            className="inline-flex p-1 rounded-xl"
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}
-          >
-            <button
-              onClick={() => updateSearchMode('roommates')}
-              disabled={updatingMode}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                searchMode === 'roommates'
-                  ? 'bg-white text-black'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              🏠 Roommates
-            </button>
-            <button
-              onClick={() => updateSearchMode('friends')}
-              disabled={updatingMode}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                searchMode === 'friends'
-                  ? 'bg-white text-black'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              👋 Friends
-            </button>
-          </div>
-        </div>
-
-        {searchMode === 'friends' && (
-          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg max-w-2xl mx-auto">
-            <p className="text-blue-300 text-sm text-center">
-              In Friends mode, roommate preferences don't apply. You'll only see users also looking for friends, and matches are based purely on shared interests.
-            </p>
-          </div>
-        )}
 
         {loading ? (
           <div className="space-y-6">

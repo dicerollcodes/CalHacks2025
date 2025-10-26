@@ -41,20 +41,15 @@ router.get('/:username', async (req, res) => {
     });
 
     // Find potential matches from the same school
-    // CRITICAL: Filter by searchMode - users looking for roommates only see other roommate-seekers
     let potentialMatches = await User.find({
       schoolId: user.schoolId._id,
-      username: { $ne: username.toLowerCase() }, // Exclude self
-      searchMode: user.searchMode || 'roommates' // Only show users in same search mode
+      username: { $ne: username.toLowerCase() } // Exclude self
     }).populate('schoolId').lean(); // Use .lean() for performance
 
-    console.log(`🔍 Finding ${user.searchMode || 'roommates'} recommendations for ${username} from ${potentialMatches.length} candidates`);
+    console.log(`🔍 Finding recommendations for ${username} from ${potentialMatches.length} candidates`);
 
-    // ROOMMATE-SPECIFIC FILTERS: Only apply if both users are looking for roommates
-    const isRoommateMode = (user.searchMode || 'roommates') === 'roommates';
-
-    // HARD FILTER: Gender preferences (non-negotiable, roommate mode only)
-    if (isRoommateMode && user.roommatePreferences?.genderPreference && user.roommatePreferences.genderPreference !== 'no-preference') {
+    // HARD FILTER: Gender preferences (non-negotiable)
+    if (user.roommatePreferences?.genderPreference && user.roommatePreferences.genderPreference !== 'no-preference') {
       potentialMatches = potentialMatches.filter(candidate => {
         // If candidate hasn't set gender yet, allow them through (preferences are optional)
         if (!candidate.roommatePreferences?.gender) return true;
@@ -64,8 +59,8 @@ router.get('/:username', async (req, res) => {
       console.log(`  → Filtered to ${potentialMatches.length} by gender preference`);
     }
 
-    // REVERSE FILTER: Check if candidates' gender preferences match user's gender (roommate mode only)
-    if (isRoommateMode && user.roommatePreferences?.gender) {
+    // REVERSE FILTER: Check if candidates' gender preferences match user's gender
+    if (user.roommatePreferences?.gender) {
       potentialMatches = potentialMatches.filter(candidate => {
         if (!candidate.roommatePreferences?.genderPreference) return true; // No preference = allow
         if (candidate.roommatePreferences.genderPreference === 'no-preference') return true;
@@ -74,8 +69,8 @@ router.get('/:username', async (req, res) => {
       console.log(`  → Filtered to ${potentialMatches.length} by reverse gender check`);
     }
 
-    // HARD FILTER: Pet allergies (non-negotiable, roommate mode only)
-    if (isRoommateMode && user.roommatePreferences?.pets === 'allergic') {
+    // HARD FILTER: Pet allergies (non-negotiable)
+    if (user.roommatePreferences?.pets === 'allergic') {
       potentialMatches = potentialMatches.filter(candidate => {
         if (!candidate.roommatePreferences?.pets) return true; // No info = allow
         return candidate.roommatePreferences.pets !== 'has-pets'; // Filter out has-pets
@@ -83,17 +78,15 @@ router.get('/:username', async (req, res) => {
       console.log(`  → Filtered to ${potentialMatches.length} by pet allergy (user is allergic)`);
     }
 
-    // REVERSE FILTER: If candidate is allergic, user can't have pets (roommate mode only)
-    if (isRoommateMode) {
-      potentialMatches = potentialMatches.filter(candidate => {
-        if (candidate.roommatePreferences?.pets === 'allergic') {
-          if (!user.roommatePreferences?.pets) return true;
-          return user.roommatePreferences.pets !== 'has-pets';
-        }
-        return true;
-      });
-      console.log(`  → Filtered to ${potentialMatches.length} by reverse pet allergy check`);
-    }
+    // REVERSE FILTER: If candidate is allergic, user can't have pets
+    potentialMatches = potentialMatches.filter(candidate => {
+      if (candidate.roommatePreferences?.pets === 'allergic') {
+        if (!user.roommatePreferences?.pets) return true;
+        return user.roommatePreferences.pets !== 'has-pets';
+      }
+      return true;
+    });
+    console.log(`  → Filtered to ${potentialMatches.length} by reverse pet allergy check`);
 
     // Calculate compatibility for remaining candidates
     const recommendations = potentialMatches.map(candidate => {
@@ -102,23 +95,15 @@ router.get('/:username', async (req, res) => {
       const interestScore = cachedScore !== undefined ? cachedScore : null;
       const hasInterestScore = interestScore !== null;
 
-      // Calculate compatibility score based on search mode
-      let roommateScore = 0;
-      let secretScore = 0;
+      // Calculate roommate compatibility (fast, no API calls)
+      const roommateScore = calculateRoommateCompatibility(
+        user.roommatePreferences,
+        candidate.roommatePreferences
+      );
 
-      if (isRoommateMode) {
-        // Roommate mode: combine interests (60%) + lifestyle (40%)
-        roommateScore = calculateRoommateCompatibility(
-          user.roommatePreferences,
-          candidate.roommatePreferences
-        );
-        const estimatedInterestScore = interestScore !== null ? interestScore : 50;
-        secretScore = Math.round((estimatedInterestScore * 0.6 + roommateScore * 0.4) * 10) / 10;
-      } else {
-        // Friends mode: pure interest score, no roommate factors
-        secretScore = interestScore !== null ? interestScore : 50;
-        roommateScore = 0; // Not relevant in friends mode
-      }
+      // For secret ranking: use interestScore if available, otherwise estimate 50
+      const estimatedInterestScore = interestScore !== null ? interestScore : 50;
+      const secretScore = Math.round((estimatedInterestScore * 0.6 + roommateScore * 0.4) * 10) / 10;
 
       // Check if can message (interest score >= 70 AND score is calculated)
       const canMessage = hasInterestScore && interestScore >= 70;

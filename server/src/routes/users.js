@@ -351,7 +351,7 @@ router.put('/:username/preferences', async (req, res) => {
 router.put('/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const { name, username: newUsername, socials, privateInterests, searchMode, roommatePreferences } = req.body;
+    const { name, username: newUsername, socials, privateInterests, roommatePreferences } = req.body;
 
     // Find the existing user
     const user = await User.findOne({ username: username.toLowerCase() });
@@ -380,9 +380,6 @@ router.put('/:username', async (req, res) => {
     // Update other fields
     if (name) user.name = name;
     if (socials !== undefined) user.socials = socials;
-    if (searchMode && ['roommates', 'friends'].includes(searchMode)) {
-      user.searchMode = searchMode;
-    }
     if (roommatePreferences !== undefined) {
       user.roommatePreferences = roommatePreferences;
     }
