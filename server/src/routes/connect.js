@@ -21,6 +21,14 @@ router.get('/:username', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Check if user has a school selected
+    if (!user.schoolId) {
+      return res.json({
+        recommendations: [],
+        message: 'Complete your profile to see recommendations'
+      });
+    }
+
     // PERFORMANCE: Fetch ALL cached match scores in one query
     const allCachedMatches = await MatchCache.find({
       userIds: username.toLowerCase()
