@@ -6,6 +6,7 @@ import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
 import IceCube from '../components/IceCube'
 import MatchRevealNew from '../components/MatchRevealNew'
 import Header from '../components/Header'
+import { useCountUp } from '../hooks/useCountUp'
 
 function UserProfileNew() {
   const { username } = useParams()
@@ -52,6 +53,18 @@ function UserProfileNew() {
   const [hideIceCube, setHideIceCube] = useState(false)
   const [showScore, setShowScore] = useState(false)
   const [showChips, setShowChips] = useState(false)
+
+  // Count-up animations for scores
+  const animatedFriendScore = useCountUp(
+    showScore && matchData?.friendScore ? matchData.friendScore : 0,
+    1500,
+    0
+  )
+  const animatedRoommateScore = useCountUp(
+    showScore && matchData?.roommateScore ? matchData.roommateScore : 0,
+    1500,
+    200 // Slight delay after friend score starts
+  )
 
   useEffect(() => {
     // Reset all state when username changes
@@ -877,7 +890,7 @@ function UserProfileNew() {
                           >
                             <div className="text-xs text-white/40 uppercase tracking-widest mb-2 text-center">Friend Match</div>
                             <div className={`text-5xl font-black text-center mb-2 ${matchData.friendScore >= 70 ? 'text-green-400' : 'text-white/70'}`}>
-                              {matchData.friendScore}%
+                              {animatedFriendScore}%
                             </div>
                             <div className="text-xs text-white/50 text-center">Pure Interest Compatibility</div>
                             <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-3">
@@ -904,7 +917,7 @@ function UserProfileNew() {
                               !matchData.isEligibleRoommate ? 'text-red-400' :
                               matchData.roommateScore >= 70 ? 'text-blue-400' : 'text-white/70'
                             }`}>
-                              {matchData.isEligibleRoommate ? `${matchData.roommateScore}%` : 'N/A'}
+                              {matchData.isEligibleRoommate ? `${animatedRoommateScore}%` : 'N/A'}
                             </div>
                             <div className="text-xs text-white/50 text-center">
                               {matchData.isEligibleRoommate ? 'Interests + Lifestyle' : 'Hard Filter Failed'}

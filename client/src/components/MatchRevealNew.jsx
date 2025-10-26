@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useCountUp } from '../hooks/useCountUp'
 
 function InterestCard({ type, interest1, interest2, relationship, score, index }) {
   const [isVisible, setIsVisible] = useState(false)
@@ -12,6 +13,13 @@ function InterestCard({ type, interest1, interest2, relationship, score, index }
 
   // Use actual score from the data, or default to 100 for exact matches
   const matchPercentage = type === 'exact' ? 100 : (score || 75)
+
+  // Animated score with delay based on index
+  const animatedScore = useCountUp(
+    isVisible ? matchPercentage : 0,
+    1000,
+    index * 100
+  )
 
   return (
     <div
@@ -62,7 +70,7 @@ function InterestCard({ type, interest1, interest2, relationship, score, index }
               backgroundClip: 'text'
             }}
           >
-            {matchPercentage}
+            {animatedScore}
           </div>
         </div>
 
@@ -127,6 +135,9 @@ export default function MatchRevealNew({ matchData, show }) {
   const hasShared = sharedInterests && sharedInterests.length > 0
   const hasRelated = relatedInterests && relatedInterests.length > 0
 
+  // Animated score for consolidated perfect match
+  const animatedPerfectScore = useCountUp(show && hasShared ? 100 : 0, 1500, 0)
+
   if (!hasShared && !hasRelated) {
     return (
       <div className="w-full px-6 py-8">
@@ -186,7 +197,7 @@ export default function MatchRevealNew({ matchData, show }) {
                       backgroundClip: 'text'
                     }}
                   >
-                    100
+                    {animatedPerfectScore}
                   </div>
                 </div>
 
