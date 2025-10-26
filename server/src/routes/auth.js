@@ -200,13 +200,12 @@ router.post('/complete-signup', async (req, res) => {
       });
     }
 
-    // Extract domain from email and find matching school
-    const emailDomain = email.toLowerCase().split('@')[1];
-    const school = await School.findOne({ domain: emailDomain });
+    // HARDCODED FOR CAL HACKS DEMO: Auto-assign UC Berkeley to all users
+    const school = await School.findOne({ domain: 'berkeley.edu' });
 
     if (!school) {
-      return res.status(400).json({
-        error: "Please use your school email. If you're still receiving this message, Shatter the Ice is not live at your school yet!"
+      return res.status(500).json({
+        error: "Server configuration error: UC Berkeley not found in database"
       });
     }
 

@@ -122,6 +122,13 @@ export default function Auth() {
                 ? 'Verify your email to create your profile'
                 : 'Verify your email to access your profile'}
             </p>
+            {step === 'email' && (
+              <div className="mt-4 px-4 py-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <p className="text-blue-300 text-sm text-center">
+                  🎉 Cal Hacks Demo: All users are assigned to UC Berkeley
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Auth Form */}
