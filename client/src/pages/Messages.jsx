@@ -4,6 +4,7 @@ import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa'
 import { io } from 'socket.io-client'
 import { getConversations, getMessages, sendMessage } from '../services/api'
 import { getUser, isAuthenticated } from '../services/auth'
+import { SOCKET_URL } from '../config/api'
 
 function Messages() {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ function Messages() {
     }
 
     // Connect to Socket.IO
-    socketRef.current = io('http://localhost:3000', {
+    socketRef.current = io(SOCKET_URL, {
       transports: ['websocket', 'polling']
     })
 

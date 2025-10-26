@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { FaArrowRight, FaComments } from 'react-icons/fa'
 import { getUser, isAuthenticated } from '../services/auth'
+import { API_BASE_URL } from '../config/api'
 import Header from '../components/Header'
 
 function Connect() {
@@ -26,7 +27,8 @@ function Connect() {
   async function loadRecommendations() {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:3000/api/connect/${userId}`)
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/connect/${userId}` : `/api/connect/${userId}`
+      const response = await fetch(apiUrl)
 
       if (!response.ok) {
         throw new Error('Failed to load recommendations')
