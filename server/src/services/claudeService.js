@@ -161,7 +161,7 @@ IMPORTANT RULES:
 
 Calculate overallCompatibility (0.00-100.00) with BALANCE:
 1. Average all match scores, weighted by strength
-2. If 2+ matches score 90+: add +5 bonus (excellent match!)
+2. For EACH match that scores 90+: add +3 bonus per match (rewards perfect matches!)
 3. If 3+ matches score 70+: add +3 bonus (good compatibility)
 4. If 5+ matches found: add +2 bonus (many connections)
 5. TYPICAL scores should be 50-70 for college students with moderate overlap
