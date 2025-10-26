@@ -93,7 +93,7 @@ export async function calculateMatch(userInterests, targetInterests, userName, t
   const user1Indexed = cleanUserInterests.map((interest, idx) => `[${idx}] ${interest}`);
   const user2Indexed = cleanTargetInterests.map((interest, idx) => `[${idx}] ${interest}`);
 
-  const prompt = `You are a PRECISE semantic matching expert helping college students find compatible roommates. Compare these interest lists and find connections with GRANULAR precision!
+  const prompt = `You are an OPTIMISTIC compatibility expert helping college students find roommate connections! Your job is to find creative connections between interests and be GENEROUS with scoring.
 
 User 1 interests:
 ${user1Indexed.join('\n')}
@@ -101,69 +101,79 @@ ${user1Indexed.join('\n')}
 User 2 interests:
 ${user2Indexed.join('\n')}
 
-CRITICAL: Use PRECISE decimal scores (0.00-100.00) for each match. Don't round to multiples of 5!
+SCORING PHILOSOPHY: Be GENEROUS! College students bond over many things. Find creative connections and reward them well. Use decimal precision for variety.
 
-SCORING PHILOSOPHY: REWARD EXACT MATCHES HEAVILY. Close matches should get high scores but not identical scores.
+GENEROUS SCORING GUIDE (with decimal precision):
 
-PRECISE SCORING GUIDE:
-
-95-100: IDENTICAL or DIRECT SYNONYMS (use decimals!)
+95-100: IDENTICAL or DIRECT SYNONYMS
 - "programming" and "coding" = 98.5
-- "soccer" and "football (soccer)" = 100.0
-- "gym" and "working out" = 96.2
-- "video games" and "gaming" = 99.1
+- "soccer" and "football" = 99.2
+- "gym" and "working out" = 97.1
+- "gaming" and "video games" = 98.8
 
-85-94: VERY STRONGLY RELATED (be precise!)
+85-94: VERY STRONGLY RELATED
 - "rock climbing" and "bouldering" = 91.3
 - "League of Legends" and "MOBAs" = 89.7
-- "guitar" and "bass" = 87.4
-- "coffee" and "espresso" = 88.9
-- "hiking" and "backpacking" = 92.6
+- "guitar" and "music" = 88.4
+- "coffee" and "cafes" = 87.6
+- "hiking" and "backpacking" = 92.1
 
-70-84: CLEARLY RELATED (same domain)
-- "guitar" and "music production" = 79.4
-- "basketball" and "sports" = 76.8
-- "reading" and "writing" = 74.2
-- "anime" and "manga" = 81.5
-- "hiking" and "camping" = 77.9
+75-84: CLEARLY RELATED (same category)
+- "basketball" and "sports" = 81.2
+- "reading" and "books" = 83.7
+- "anime" and "manga" = 82.4
+- "cooking" and "food" = 79.8
+- "travel" and "adventure" = 80.5
 
-55-69: RELATED INTERESTS (conversation potential)
-- "League of Legends" and "Valorant" = 67.3
-- "basketball" and "soccer" = 63.8
-- "indie music" and "alternative rock" = 68.7
-- "gym" and "nutrition" = 64.2
-- "travel" and "photography" = 61.5
+65-74: RELATED INTERESTS (good conversation starters!)
+- "basketball" and "soccer" = 71.3
+- "gaming" and "anime" = 69.8
+- "gym" and "sports" = 73.2
+- "music" and "concerts" = 72.6
+- "reading" and "writing" = 70.4
 
-40-54: LOOSE CONNECTION
-- "cooking" and "baking" = 48.3
-- "reading" and "Netflix" = 44.6
+55-64: ADJACENT INTERESTS (potential common ground)
+- "gym" and "nutrition" = 62.7
+- "travel" and "photography" = 61.4
+- "coding" and "tech" = 63.8
+- "coffee" and "studying" = 58.9
+- "music" and "dancing" = 60.2
 
-Below 40: Unrelated
-- "basketball" and "poetry" = 14.2
-- "chemistry" and "dance" = 9.7
+45-54: LOOSE BUT REAL CONNECTIONS (shared lifestyle indicators)
+- "outdoors" and "hiking" = 52.3
+- "art" and "museums" = 51.7
+- "food" and "restaurants" = 49.8
+- "Netflix" and "movies" = 53.4
+
+35-44: MINIMAL CONNECTION (but still something!)
+- Even different interests show personality traits worth exploring
+- Creative people might connect on "art" and "music" = 41.2
+- Active people might connect on "gym" and "hiking" = 39.7
+
+Below 35: Very different, but don't go too low! Minimum 20 for any reasonable pairing.
 
 IMPORTANT RULES:
-1. USE DECIMALS - no rounding to 5s or 10s! Exact matches should differ slightly
-2. REWARD SPECIFICITY - "late night gaming" and "League of Legends" = 82.4 (both gaming, one more specific)
-3. Multiple strong matches should boost overall score significantly
-4. Identical interests should score 97-100, not all exactly the same
-5. Related interests in same domain: 70-85 range with variation
+1. BE GENEROUS - roommates bond over many things!
+2. USE DECIMALS for variety (no rounding to 5s or 10s)
+3. Find creative connections - "late night studying" and "coffee" = great match!
+4. Identical interests should score 95-100 with slight variation
+5. If they share ANY interest in the same broad category (sports, arts, gaming, etc.), score 65+
 
-Calculate overallCompatibility (0.00-100.00) with PRECISION:
+Calculate overallCompatibility (0.00-100.00) GENEROUSLY:
 1. Average all match scores, weighted by strength
-2. If 2+ matches score 95+: add +5 bonus (perfect match boost)
-3. If 4+ matches score 70+: add +3 bonus (strong connection boost)
-4. Final score should be a PRECISE decimal that reflects the UNIQUE combination
-
-CRITICAL: Use PRECISE DECIMAL SCORING. Two users with "gym, basketball, soccer" should NOT get the same exact score as two with "gym, reading, coding"!
+2. If 2+ matches score 90+: add +8 bonus (amazing match!)
+3. If 3+ matches score 70+: add +5 bonus (strong compatibility!)
+4. If 5+ matches found: add +3 bonus (lots in common!)
+5. MINIMUM overall score should be 40 even for very different interests
+6. TYPICAL scores should be 60-85 for college students (they usually share some common ground!)
 
 Return ONLY valid JSON with DECIMAL scores:
 {
   "matches": [
-    {"user1Index": 0, "user2Index": 2, "score": 94.7, "reason": "brief explanation"},
-    {"user1Index": 1, "user2Index": 0, "score": 73.2, "reason": "brief explanation"}
+    {"user1Index": 0, "user2Index": 2, "score": 87.4, "reason": "brief explanation"},
+    {"user1Index": 1, "user2Index": 0, "score": 72.8, "reason": "brief explanation"}
   ],
-  "overallCompatibility": 76.34
+  "overallCompatibility": 78.6
 }
 
 Return ONLY the JSON, no other text.`;
