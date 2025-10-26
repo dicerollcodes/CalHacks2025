@@ -167,7 +167,7 @@ router.post('/', async (req, res) => {
         name: target.name,
         avatar: target.avatar,
         socials: target.socials,
-        school: target.schoolId.name
+        school: target.schoolId ? target.schoolId.name : null
       },
       _debug: {
         fromCache,

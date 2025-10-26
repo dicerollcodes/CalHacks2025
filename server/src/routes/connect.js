@@ -51,11 +51,12 @@ router.get('/:username', async (req, res) => {
     // HARD FILTER: Gender preferences (non-negotiable)
     if (user.roommatePreferences?.genderPreference && user.roommatePreferences.genderPreference !== 'no-preference') {
       potentialMatches = potentialMatches.filter(candidate => {
-        // If user has specific preference, candidate MUST have matching gender set
-        if (!candidate.roommatePreferences?.gender) return false; // No gender set = filtered out
+        // If candidate hasn't set gender yet, allow them through (preferences are optional)
+        if (!candidate.roommatePreferences?.gender) return true;
+        // If candidate has set gender, check if it matches user's preference
         return candidate.roommatePreferences.gender === user.roommatePreferences.genderPreference;
       });
-      console.log(`  → Filtered to ${potentialMatches.length} by gender preference (strict)`);
+      console.log(`  → Filtered to ${potentialMatches.length} by gender preference`);
     }
 
     // REVERSE FILTER: Check if candidates' gender preferences match user's gender
