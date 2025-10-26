@@ -49,14 +49,14 @@ function calculateInterestQualityMultiplier(interests) {
 
   let qualityScore = 1.0;
 
-  // Penalty 1: Low interest count (< 3 interests) - REDUCED penalties
+  // Penalty 1: Low interest count (< 3 interests) - VERY LIGHT penalties
   if (validInterests.length === 1) {
-    qualityScore *= 0.85; // 15% penalty for single interest
+    qualityScore *= 0.90; // 10% penalty for single interest
   } else if (validInterests.length === 2) {
-    qualityScore *= 0.92; // 8% penalty for two interests
+    qualityScore *= 0.95; // 5% penalty for two interests
   }
 
-  // Penalty 2: Very general interests - REDUCED penalties
+  // Penalty 2: Very general interests - VERY LIGHT penalties
   let generalCount = 0;
 
   for (const interest of validInterests) {
@@ -71,9 +71,9 @@ function calculateInterestQualityMultiplier(interests) {
   // Apply penalty based on proportion of general interests
   const generalRatio = generalCount / validInterests.length;
   if (generalRatio >= 1.0) {
-    qualityScore *= 0.85; // 15% penalty if ALL are general
+    qualityScore *= 0.90; // 10% penalty if ALL are general
   } else if (generalRatio > 0.5) {
-    qualityScore *= 0.92; // 8% penalty if more than half are general
+    qualityScore *= 0.95; // 5% penalty if more than half are general
   }
 
   // Ensure minimum multiplier is 0.75 (max 25% penalty)
@@ -196,7 +196,7 @@ Calculate overallCompatibility (0-100) based on:
 Return ONLY the JSON, no other text.`;
 
   const message = await getAnthropicClient().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 3000,
     messages: [{
       role: 'user',
@@ -331,7 +331,7 @@ Create starters that:
 Return as JSON array of strings: ["starter1", "starter2", "starter3"]`;
 
   const message = await getAnthropicClient().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 1000,
     messages: [{
       role: 'user',
