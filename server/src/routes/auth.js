@@ -291,7 +291,7 @@ router.post('/complete-signup', async (req, res) => {
         email: user.email,
         name: user.name,
         username: user.username,
-        school: user.schoolId.name,
+        school: user.schoolId ? user.schoolId.name : null,
         profileUrl: `${req.protocol}://${req.get('host')}/user/${user.username}`
       }
     });
@@ -426,7 +426,7 @@ router.post('/verify-login', async (req, res) => {
         email: user.email,
         name: user.name,
         username: user.username,
-        school: user.schoolId.name,
+        school: user.schoolId ? user.schoolId.name : null,
         profileUrl: `${req.protocol}://${req.get('host')}/user/${user.username}`
       }
     });
