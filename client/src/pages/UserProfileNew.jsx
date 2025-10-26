@@ -55,14 +55,14 @@ function UserProfileNew() {
   const [showScore, setShowScore] = useState(false)
   const [showChips, setShowChips] = useState(false)
 
-  // Count-up animations for scores
+  // Count-up animations for scores (rounded to integers for main display)
   const animatedFriendScore = useCountUp(
-    showScore && matchData?.friendScore ? matchData.friendScore : 0,
+    showScore && matchData?.friendScore ? Math.round(matchData.friendScore) : 0,
     1500,
     0
   )
   const animatedRoommateScore = useCountUp(
-    showScore && matchData?.roommateScore ? matchData.roommateScore : 0,
+    showScore && matchData?.roommateScore ? Math.round(matchData.roommateScore) : 0,
     1500,
     200 // Slight delay after friend score starts
   )
@@ -952,7 +952,7 @@ function UserProfileNew() {
                   ) : (
                     <div className="text-center">
                       <div className="text-6xl font-bold text-white/70 mb-4">
-                        {matchData.score || matchData.friendScore}%
+                        {Math.round(matchData.score || matchData.friendScore)}%
                       </div>
                       <p className="text-white/50 max-w-md mx-auto">
                         {matchData.privacyMessage}
