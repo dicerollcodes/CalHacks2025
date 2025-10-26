@@ -2,251 +2,255 @@
 
 > "Don't just break the ice — shatter it."
 
-A full-stack application that helps students reveal their authentic interests only where they're appreciated — with people who share the same passions.
-
-## ✨ Mission
-
-Students hide their most authentic interests because they fear judgment and being seen as "cringe." This app helps them reveal those interests only where they're appreciated — with people who share the same passions.
-
-## 🎯 Core Concept
-
-Users privately list ALL their interests — especially niche ones they wouldn't post publicly. When another user visits their link (e.g., from Instagram), they "shatter the ice" to reveal:
-- A compatibility score
-- Shared + semantically related interests
-- AI-generated conversation starters
-
-## 🏗️ Project Structure
-
-```
-CalHacks2025/
-├── server/              # Express + MongoDB backend
-│   ├── src/
-│   │   ├── models/      # Mongoose schemas (School, User)
-│   │   ├── routes/      # API endpoints
-│   │   ├── services/    # Claude API integration
-│   │   ├── utils/       # Helper functions, seed script
-│   │   └── config/      # Database configuration
-│   └── package.json
-├── client/              # React + Vite + Tailwind frontend
-│   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── pages/       # Route pages
-│   │   ├── services/    # API client
-│   │   └── utils/
-│   └── package.json
-└── README.md
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js (v18+)
-- MongoDB (running locally on port 27017)
-- Anthropic API key ([get one here](https://console.anthropic.com))
-
-### 1. Clone and Install
-
-```bash
-git clone <your-repo-url>
-cd CalHacks2025
-
-# Install server dependencies
-cd server
-npm install
-
-# Install client dependencies
-cd ../client
-npm install
-```
-
-### 2. Configure Environment Variables
-
-Create a `.env` file in the `server/` directory:
-
-```bash
-cd server
-cp .env.example .env
-```
-
-Edit `.env` and add your credentials:
-
-```
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/shatter-the-ice
-ANTHROPIC_API_KEY=your_actual_api_key_here
-NODE_ENV=development
-```
-
-### 3. Seed the Database
-
-```bash
-cd server
-npm run seed
-```
-
-This will create sample schools and users. Note the shareable IDs printed in the console!
-
-### 4. Start the Backend
-
-```bash
-cd server
-npm run dev
-```
-
-Server will run on `http://localhost:3000`
-
-### 5. Start the Frontend
-
-In a new terminal:
-
-```bash
-cd client
-npm run dev
-```
-
-Client will run on `http://localhost:5173`
-
-### 6. Test the App
-
-1. Visit `http://localhost:5173` to see the home page
-2. Copy a shareable ID from the seed output (e.g., `abc12345`)
-3. Visit `http://localhost:5173/user/abc12345` to see that user's profile
-4. To test matching, add a viewer ID: `http://localhost:5173/user/abc12345?viewer=xyz67890`
-5. Click "Shatter the Ice" to see compatibility results!
-
-## 📡 API Endpoints
-
-### User Management
-
-**Create User**
-```bash
-POST /api/users
-Content-Type: application/json
-
-{
-  "name": "Alex Chen",
-  "avatar": "👨‍💻",
-  "socials": {
-    "instagram": "alex.chen",
-    "discord": "alexc#1234"
-  },
-  "schoolId": "65f8a1b2c3d4e5f6a7b8c9d0",
-  "privateInterests": [
-    "Anime",
-    "Mechanical keyboards",
-    "Competitive programming"
-  ]
-}
-```
-
-**Get User (Public Info)**
-```bash
-GET /api/users/:shareableId
-```
-
-Returns user info WITHOUT private interests.
-
-### Matching
-
-**Calculate Match**
-```bash
-POST /api/match
-Content-Type: application/json
-
-{
-  "viewerId": "abc12345",
-  "targetUserId": "xyz67890"
-}
-```
-
-Returns:
-- Match score (0-100)
-- Shared interests
-- Related interests (semantic similarity)
-- Conversation starters
-
-### Recommendations
-
-**Get Recommended Matches**
-```bash
-GET /api/recommendations/:shareableId?sameSchool=true&limit=10
-```
-
-Query parameters:
-- `sameSchool` (default: true) - Only show users from the same school
-- `limit` (default: 10) - Number of recommendations
-
-## 🧠 Claude API Integration
-
-The app uses Claude for:
-
-1. **Semantic Similarity**: Analyzes interest compatibility beyond exact matches
-   - Example: "Anime" ↔ "Manga" ↔ "Japanese culture"
-
-2. **Match Scoring**: Combines multiple factors:
-   - Exact interest matches
-   - Semantic similarity
-   - Niche interest bonus (rare interests = stronger connection)
-
-3. **Conversation Starters**: Generates personalized, natural conversation prompts based on shared interests
-
-All Claude API calls are cached to optimize performance.
-
-## 🎨 Tech Stack
-
-### Backend
-- **Express.js** - Web framework
-- **MongoDB + Mongoose** - Database
-- **Anthropic Claude API** - Semantic matching & conversation generation
-- **CORS** - Cross-origin support
-
-### Frontend
-- **React 18** - UI library
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **React Router** - Navigation
-
-## 📝 Example Use Cases
-
-### Scenario 1: Link Sharing
-1. Maya creates her profile with interests: "Cosplay, Digital art, K-pop"
-2. Maya shares her link on Instagram: `shatter.app/user/maya123`
-3. Jordan clicks the link and adds his viewer ID
-4. System reveals: 70% match, shared interest in anime culture, conversation starters
-
-### Scenario 2: Discovery
-1. Alex logs in and wants to find friends at UC Berkeley
-2. Visits recommendations page
-3. Sees top matches ranked by compatibility
-4. Clicks to "shatter the ice" with high-scoring matches
-
-## 🔜 Future Enhancements (Phase 2+)
-
-- [ ] Ice cube shattering animation
-- [ ] User authentication
-- [ ] Profile creation flow
-- [ ] Real-time notifications
-- [ ] School verification system
-- [ ] Enhanced recommendation algorithm
-- [ ] Mobile app
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🙏 Acknowledgments
-
-Built with Claude by Anthropic
-Made for CalHacks 2025
+**The intelligent roommate matching platform that helps college students find their perfect living partners through AI-powered compatibility analysis.**
 
 ---
 
-**Need help?** Check the [API Documentation](./API_DOCS.md) or open an issue!
+## 🎯 What We Built
+
+Shatter the Ice is a full-stack roommate matching platform designed specifically for college students. We use Claude AI to analyze private interests and lifestyle preferences to create meaningful connections between potential roommates.
+
+### The Problem
+
+Finding a compatible roommate is one of the most stressful parts of college life. Traditional platforms rely on basic questionnaires that don't capture the nuanced compatibility between two people. Students often end up living with strangers who don't share their values, interests, or lifestyle habits.
+
+### Our Solution
+
+Shatter the Ice uses advanced AI semantic matching to go beyond surface-level compatibility. We analyze:
+- **Private interests** (kept confidential until mutual connection)
+- **Roommate lifestyle preferences** (sleep schedule, cleanliness, social habits)
+- **Hard filters** (gender preferences, pet allergies - non-negotiable)
+- **Conversation potential** through AI-generated ice breakers
+
+---
+
+## ✨ Key Features
+
+### 🔐 Privacy-First Design
+- Email verification with secure JWT authentication
+- Private interests revealed only after "breaking the ice" (30%+ match)
+- Messaging unlocked at 50%+ compatibility
+
+### 🤖 AI-Powered Matching
+- **Claude Haiku 4.5** semantic interest analysis
+- Finds connections beyond exact matches (e.g., "gaming" ↔ "esports" ↔ "streaming")
+- Balanced scoring algorithm rewards multiple strong matches
+- Decimal precision for granular differentiation
+
+### 🏠 Roommate Intelligence
+- **Secret algorithm**: 60% interests + 40% lifestyle preferences
+- **Hard filters**: Gender preferences & pet allergies (auto-filter incompatible matches)
+- **Soft scores**: Sleep schedule, cleanliness, social level, smoking, guests
+- Top 20 recommendations ranked by combined compatibility
+
+### 💬 Smart Connections
+- Break the ice to reveal compatibility scores
+- AI-generated conversation starters based on shared interests
+- Integrated messaging (unlocked at 50%+ match)
+- Profile links shareable via social media
+
+### 🎨 Modern UX
+- Glassmorphism UI with smooth animations
+- Ice cube shattering animation
+- Animated score reveals with count-up effects
+- Responsive design for all devices
+
+---
+
+## 🏗️ Tech Stack
+
+### Backend
+- **Node.js + Express** - RESTful API server
+- **MongoDB + Mongoose** - NoSQL database with caching
+- **Anthropic Claude Haiku 4.5** - Semantic matching AI
+- **JWT** - Secure authentication (7-day expiration)
+- **Nodemailer** - Email verification system
+
+### Frontend
+- **React 18 + Vite** - Fast, modern UI framework
+- **Tailwind CSS** - Utility-first styling
+- **React Router** - Client-side routing
+- **Custom hooks** - useCountUp for animations
+
+### Deployment
+- **Heroku** - Scalable cloud hosting
+- **Git Subtree** - Separate client/server deployments
+- **Environment variables** - Secure credential management
+
+---
+
+## 🚀 How It Works
+
+### 1. Account Creation
+```
+Sign up with .edu email → Verify with 6-digit code → Create profile
+```
+
+### 2. Profile Setup (Required Before Access)
+- Add private interests (unlimited, hidden from everyone initially)
+- Set roommate preferences (7 key lifestyle factors)
+- Answer gender and pet questions
+
+### 3. Discover Matches
+- **Connect tab**: View top 20 ranked matches from your school
+- **Interest Match score**: Shows pure interest compatibility
+- **Ranking**: Secret algorithm combining interests + preferences
+- **Filters**: Gender preference and pet allergies applied automatically
+
+### 4. Break the Ice
+- Click someone's profile → "Shatter the Ice" animation
+- Reveals **two scores**:
+  - **Friend Match**: Pure interest compatibility
+  - **Roommate Match**: Interests + lifestyle (if eligible)
+- See shared interests, related interests, conversation starters
+
+### 5. Connect
+- **50%+ match**: Messaging unlocked
+- Send AI-generated conversation starters or custom messages
+- Build connections with compatible roommates
+
+---
+
+## 📊 The Algorithm
+
+### Interest Matching (Claude AI)
+```
+Scoring Philosophy: BALANCED
+- 90-100: Identical interests (e.g., "programming" & "coding")
+- 80-89: Very strongly related (e.g., "League of Legends" & "MOBAs")
+- 70-79: Clearly related (e.g., "basketball" & "sports")
+- 60-69: Good conversation potential
+- 50-59: Some common ground
+
+Bonuses:
+- +5 for EACH match scoring 90+
+- +5 if 3+ matches score 70+
+- +5 if 5+ total matches
+- +7 if 6+ total matches
+```
+
+### Lifestyle Matching
+```
+Weighted scoring across 7 factors:
+- Gender preference (25 pts) - hard filter
+- Sleep schedule (20 pts)
+- Bedtime/wake time alignment (15 pts)
+- Cleanliness (15 pts)
+- Smoking (15 pts)
+- Social level (10 pts)
+- Pet compatibility (10 pts) - hard filter
+- Guest frequency (10 pts)
+```
+
+### Final Score
+```
+Secret Ranking = (Interest Score × 0.6) + (Lifestyle Score × 0.4)
+Display Scores = Rounded to nearest integer
+Individual Interest Scores = Keep decimal precision
+```
+
+---
+
+## 🎪 Live Demo
+
+**Deployed at**: [shatter-the-ice-client.herokuapp.com](https://shatter-the-ice-client-5c659b59f73c.herokuapp.com)
+
+**Test Accounts**: Create your own with any .edu email!
+
+---
+
+## 💻 Local Development
+
+### Prerequisites
+- Node.js 18+
+- MongoDB running locally
+- Anthropic API key
+
+### Setup
+
+```bash
+# Clone and install
+git clone <repo-url>
+cd CalHacks2025
+
+# Server setup
+cd server
+npm install
+cp .env.example .env
+# Add your ANTHROPIC_API_KEY to .env
+
+# Client setup
+cd ../client
+npm install
+
+# Run both (in separate terminals)
+cd server && npm run dev  # http://localhost:3000
+cd client && npm run dev  # http://localhost:5173
+```
+
+---
+
+## 🔑 Key Implementation Highlights
+
+### Performance Optimization
+- **Match caching**: MongoDB cache stores Claude API results
+- **In-memory cache**: Secondary cache for ultra-fast lookups
+- **Cache invalidation**: Automatic clearing when interests change
+
+### Security
+- **Email verification**: 6-digit codes with 10-minute expiration
+- **JWT tokens**: HttpOnly cookies, 7-day expiration
+- **Password hashing**: bcrypt with salt rounds
+- **Input validation**: Server-side validation on all endpoints
+
+### UX Innovations
+- **Progressive disclosure**: Reveal scores only after ice-breaking
+- **Gamification**: Ice cube shattering creates engagement
+- **Smart messaging**: Unlock messaging at reasonable threshold (50%)
+- **Conversation starters**: Remove friction from first message
+
+---
+
+## 📦 Deployment
+
+### Heroku Deployment
+```bash
+# Backend
+git subtree push --prefix server heroku-api main
+
+# Frontend
+git subtree push --prefix client heroku-client main
+
+# Clear match cache after algorithm changes
+heroku run "node -e 'mongoose.connect(process.env.MONGODB_URI); MatchCache.deleteMany({})...'" -a shatter-the-ice-api
+```
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] Multi-school support expansion
+- [ ] Group roommate matching (3-4 people)
+- [ ] Lease coordination tools
+- [ ] Housing listing integration
+- [ ] Mobile native apps (iOS/Android)
+- [ ] Video ice-breaker feature
+- [ ] Roommate agreement templates
+
+---
+
+## 🏆 Built For CalHacks 2025
+
+**Team**: [Your Team Name]
+**Powered by**: Claude AI by Anthropic
+**Hackathon**: CalHacks 11.0
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details
+
+---
+
+**Questions?** Open an issue or reach out to the team!

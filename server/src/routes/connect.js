@@ -105,8 +105,8 @@ router.get('/:username', async (req, res) => {
       const estimatedInterestScore = interestScore !== null ? interestScore : 50;
       const secretScore = Math.round((estimatedInterestScore * 0.6 + roommateScore * 0.4) * 10) / 10;
 
-      // Check if can message (interest score >= 70 AND score is calculated)
-      const canMessage = hasInterestScore && interestScore >= 70;
+      // Check if can message (interest score >= 50 AND score is calculated)
+      const canMessage = hasInterestScore && interestScore >= 50;
 
       return {
         username: candidate.username,

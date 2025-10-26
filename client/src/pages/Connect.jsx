@@ -156,7 +156,7 @@ function Connect() {
                     <span className="text-sm text-white/60">Interest Match</span>
                     {rec.hasInterestScore ? (
                       <span className={`text-lg font-bold ${
-                        rec.interestScore >= 70 ? 'text-green-400' : 'text-white/70'
+                        rec.interestScore >= 50 ? 'text-green-400' : 'text-white/70'
                       }`}>
                         {rec.interestScore}%
                       </span>
@@ -170,7 +170,7 @@ function Connect() {
                     {rec.hasInterestScore ? (
                       <div
                         className={`h-full ${
-                          rec.interestScore >= 70 ? 'bg-green-500' : 'bg-white/30'
+                          rec.interestScore >= 50 ? 'bg-green-500' : 'bg-white/30'
                         }`}
                         style={{ width: `${rec.interestScore}%` }}
                       />
@@ -222,9 +222,9 @@ function Connect() {
                       Message
                     </Link>
                   ) : (
-                    <div className="px-4 py-2 bg-white/5 text-white/30 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed" title={!rec.hasInterestScore ? "Break the ice first to unlock messaging" : "Need 70%+ match to message"}>
+                    <div className="px-4 py-2 bg-white/5 text-white/30 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed" title={!rec.hasInterestScore ? "Break the ice first to unlock messaging" : "Need 50%+ match to message"}>
                       <span className="text-xs">
-                        {!rec.hasInterestScore ? '🔒' : 'Need 70%+'}
+                        {!rec.hasInterestScore ? '🔒' : 'Need 50%+'}
                       </span>
                     </div>
                   )}
@@ -243,7 +243,7 @@ function Connect() {
                 combining interests (60%) + roommate preferences (40%). Gender and pet allergies are hard filters.
               </p>
               <p className="text-xs text-white/40 mt-2">
-                "Interest Match" shows pure interest compatibility (no roommate factors). Break the ice to reveal scores. Need 70%+ to message.
+                "Interest Match" shows pure interest compatibility (no roommate factors). Break the ice to reveal scores. Need 50%+ to message.
               </p>
             </div>
           </div>

@@ -86,12 +86,12 @@ router.post('/', async (req, res) => {
       await newCache.save();
     }
 
-    // Privacy protection: Hide detailed interests if match score < 40%
-    const MINIMUM_MATCH_THRESHOLD = 40;
+    // Privacy protection: Hide detailed interests if match score < 30%
+    const MINIMUM_MATCH_THRESHOLD = 30;
     const shouldRevealDetails = matchData.matchScore >= MINIMUM_MATCH_THRESHOLD;
 
     // Store/update match based on score threshold
-    const MESSAGE_THRESHOLD = 70;
+    const MESSAGE_THRESHOLD = 50;
     const existingMatch = await Match.findOne({ userIds: sortedUserIds });
 
     if (matchData.matchScore >= MESSAGE_THRESHOLD) {
