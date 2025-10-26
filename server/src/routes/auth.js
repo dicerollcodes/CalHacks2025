@@ -1,5 +1,4 @@
 import express from 'express';
-import { nanoid } from 'nanoid';
 import User from '../models/User.js';
 import VerificationCode from '../models/VerificationCode.js';
 import School from '../models/School.js';
@@ -192,7 +191,7 @@ router.post('/verify-code', async (req, res) => {
  */
 router.post('/complete-signup', async (req, res) => {
   try {
-    const { email, name, username, privateInterests, socials } = req.body;
+    const { email, name, username, privateInterests, socials, roommatePreferences } = req.body;
 
     if (!email || !name || !username) {
       return res.status(400).json({
@@ -260,6 +259,7 @@ router.post('/complete-signup', async (req, res) => {
       user.schoolId = schoolId;
       user.privateInterests = privateInterests || [];
       user.socials = socials || {};
+      user.roommatePreferences = roommatePreferences || {};
       user.emailVerified = true;
       await user.save();
     } else {
@@ -271,6 +271,7 @@ router.post('/complete-signup', async (req, res) => {
         schoolId,
         privateInterests: privateInterests || [],
         socials: socials || {},
+        roommatePreferences: roommatePreferences || {},
         emailVerified: true
       });
       await user.save();

@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import { rankUsersByCompatibility } from '../services/claudeService.js';
+import { calculateSecretCompatibility } from '../services/compatibilityService.js';
 
 const router = express.Router();
 
@@ -45,8 +45,20 @@ router.get('/:shareableId', async (req, res) => {
       });
     }
 
-    // Rank by compatibility using Claude API
-    const rankedMatches = await rankUsersByCompatibility(sourceUser, candidates);
+    // Calculate combined compatibility (interests + roommate preferences) using Claude AI
+    console.log(`🔍 Calculating compatibility for ${candidates.length} candidates...`);
+    const compatibilityPromises = candidates.map(async (candidate) => {
+      const compatibility = await calculateSecretCompatibility(sourceUser, candidate);
+      return {
+        user: candidate,
+        ...compatibility
+      };
+    });
+
+    const compatibilityResults = await Promise.all(compatibilityPromises);
+
+    // Sort by combined secret score (highest first)
+    const rankedMatches = compatibilityResults.sort((a, b) => b.secretScore - a.secretScore);
 
     // Format and limit results
     const recommendations = rankedMatches.slice(0, limit).map(match => ({
@@ -56,9 +68,10 @@ router.get('/:shareableId', async (req, res) => {
         avatar: match.user.avatar,
         school: match.user.schoolId.name
       },
-      matchScore: match.matchScore,
-      sharedInterestsCount: match.sharedCount,
-      relatedInterestsCount: match.relatedCount
+      matchScore: match.secretScore, // Combined score (60% interests, 40% roommate)
+      interestScore: match.interestScore,
+      roommateScore: match.roommateScore,
+      breakdown: match.breakdown
     }));
 
     res.json({

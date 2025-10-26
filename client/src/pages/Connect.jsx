@@ -144,21 +144,43 @@ function Connect() {
 
                 {/* Compatibility Display */}
                 <div className="mb-4 pl-12">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/60">Interest Match</span>
-                    <span className={`text-lg font-bold ${
-                      rec.interestScore >= 70 ? 'text-green-400' : 'text-white/70'
+                  {/* Overall Compatibility Score */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-semibold text-white/80">Overall Compatibility</span>
+                    <span className={`text-2xl font-black ${
+                      rec.secretScore >= 80 ? 'text-green-400' : 
+                      rec.secretScore >= 60 ? 'text-yellow-400' : 'text-white/70'
                     }`}>
-                      {rec.interestScore}%
+                      {rec.secretScore}%
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden mb-3">
                     <div
-                      className={`h-full ${
-                        rec.interestScore >= 70 ? 'bg-green-500' : 'bg-white/30'
+                      className={`h-full transition-all ${
+                        rec.secretScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-400' : 
+                        rec.secretScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-amber-400' : 
+                        'bg-gradient-to-r from-white/30 to-white/20'
                       }`}
-                      style={{ width: `${rec.interestScore}%` }}
+                      style={{ width: `${rec.secretScore}%` }}
                     />
+                  </div>
+
+                  {/* Breakdown */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/50">
+                        <span className="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1.5"></span>
+                        Interests (60%)
+                      </span>
+                      <span className="text-white/70 font-medium">{rec.interestScore}%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/50">
+                        <span className="inline-block w-2 h-2 rounded-full bg-purple-400 mr-1.5"></span>
+                        Roommate (40%)
+                      </span>
+                      <span className="text-white/70 font-medium">{rec.roommateScore}%</span>
+                    </div>
                   </div>
 
                   {/* Roommate Preview */}
@@ -172,7 +194,7 @@ function Connect() {
                         </span>
                       )}
                       <span className="px-2 py-1 bg-white/5 rounded-full">
-                        ✅ Has roommate preferences
+                        ✅ Roommate compatible
                       </span>
                     </div>
                   )}
@@ -212,11 +234,11 @@ function Connect() {
           <div className="mt-12 text-center">
             <div className="inline-block px-6 py-4 bg-white/5 rounded-2xl border border-white/10">
               <p className="text-sm text-white/60">
-                <span className="text-white/80 font-semibold">💡 Pro Tip:</span> Recommendations are ranked by a secret algorithm
-                that combines your interests with roommate lifestyle preferences.
+                <span className="text-white/80 font-semibold">💡 How it works:</span> Compatibility score combines interests (60%) 
+                and roommate preferences (40%). Rankings show your best overall matches!
               </p>
               <p className="text-xs text-white/40 mt-2">
-                You need 70%+ interest match to message someone.
+                Note: Messaging requires 70%+ <em>interest</em> match (not overall score).
               </p>
             </div>
           </div>

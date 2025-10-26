@@ -2,7 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import MatchCache from '../models/MatchCache.js';
 import Match from '../models/Match.js';
-import { calculateMatch } from '../services/claudeService.js';
+import { calculateMatch, calculateRoommateCompatibility } from '../services/claudeService.js';
 import { normalizeInterests, createMatchCacheKey } from '../utils/helpers.js';
 
 const router = express.Router();
@@ -85,6 +85,23 @@ router.post('/', async (req, res) => {
       await newCache.save();
     }
 
+    // Calculate roommate compatibility if both users have preferences
+    let roommateAnalysis = null;
+    const hasViewerPrefs = viewer.roommatePreferences && 
+      Object.values(viewer.roommatePreferences).some(val => val !== null && val !== undefined);
+    const hasTargetPrefs = target.roommatePreferences && 
+      Object.values(target.roommatePreferences).some(val => val !== null && val !== undefined);
+
+    if (hasViewerPrefs && hasTargetPrefs) {
+      console.log(`🏠 Calculating roommate compatibility for ${viewer.name} ↔ ${target.name}`);
+      roommateAnalysis = await calculateRoommateCompatibility(
+        viewer.roommatePreferences,
+        target.roommatePreferences,
+        viewer.name,
+        target.name
+      );
+    }
+
     // Privacy protection: Hide detailed interests if match score < 40%
     const MINIMUM_MATCH_THRESHOLD = 40;
     const shouldRevealDetails = matchData.matchScore >= MINIMUM_MATCH_THRESHOLD;
@@ -134,7 +151,15 @@ router.post('/', async (req, res) => {
         conversationStarters: shouldRevealDetails ? matchData.conversationStarters : [],
         privacyMessage: !shouldRevealDetails
           ? `You have a ${matchData.matchScore}% match - not enough overlap to reveal details. Try adding more interests to your profile to build a richer personality for better matches!`
-          : null
+          : null,
+        // Include roommate compatibility analysis if available
+        roommateCompatibility: roommateAnalysis ? {
+          score: roommateAnalysis.score,
+          explanation: roommateAnalysis.explanation,
+          strengths: roommateAnalysis.strengths,
+          concerns: roommateAnalysis.concerns,
+          tips: roommateAnalysis.tips
+        } : null
       },
       viewer: {
         name: viewer.name,
@@ -149,7 +174,8 @@ router.post('/', async (req, res) => {
       _debug: {
         fromCache,
         cacheKey,
-        thresholdMet: shouldRevealDetails
+        thresholdMet: shouldRevealDetails,
+        hasRoommateAnalysis: !!roommateAnalysis
       }
     });
   } catch (error) {

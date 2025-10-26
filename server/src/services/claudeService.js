@@ -281,3 +281,141 @@ export async function rankUsersByCompatibility(sourceUser, candidateUsers) {
 export function clearCache() {
   similarityCache.clear();
 }
+
+/**
+ * Calculate roommate compatibility using Claude AI
+ * Returns both a numerical score (0-100) and natural language explanations
+ */
+export async function calculateRoommateCompatibility(prefs1, prefs2, name1, name2) {
+  // Handle cases where preferences are missing
+  if (!prefs1 || !prefs2) {
+    return {
+      score: 50,
+      explanation: "One or both users haven't filled out roommate preferences yet.",
+      strengths: [],
+      concerns: [],
+      tips: []
+    };
+  }
+
+  // Check if both preference sets are essentially empty
+  const hasPrefs1 = Object.values(prefs1).some(val => val !== null && val !== undefined);
+  const hasPrefs2 = Object.values(prefs2).some(val => val !== null && val !== undefined);
+
+  if (!hasPrefs1 || !hasPrefs2) {
+    return {
+      score: 50,
+      explanation: "One or both users haven't filled out enough roommate preferences yet.",
+      strengths: [],
+      concerns: [],
+      tips: []
+    };
+  }
+
+  console.log(`\n🏠 Analyzing roommate compatibility for ${name1} ↔ ${name2}`);
+
+  // Create a readable summary of preferences for Claude
+  const formatPrefs = (prefs, name) => {
+    const parts = [];
+    
+    if (prefs.sleepSchedule) parts.push(`Sleep schedule: ${prefs.sleepSchedule}`);
+    if (prefs.bedtime) parts.push(`Bedtime: ${prefs.bedtime}`);
+    if (prefs.wakeTime) parts.push(`Wake time: ${prefs.wakeTime}`);
+    if (prefs.cleanliness) parts.push(`Cleanliness: ${prefs.cleanliness}`);
+    if (prefs.socialLevel) parts.push(`Social level: ${prefs.socialLevel}`);
+    if (prefs.guests) parts.push(`Guests: ${prefs.guests}`);
+    if (prefs.smoking) parts.push(`Smoking: ${prefs.smoking}`);
+    if (prefs.pets) parts.push(`Pets: ${prefs.pets}`);
+    
+    return `${name}:\n${parts.join('\n')}`;
+  };
+
+  const prompt = `You are a roommate compatibility expert. Analyze these two users' roommate preferences and determine how compatible they would be as roommates.
+
+${formatPrefs(prefs1, name1)}
+
+${formatPrefs(prefs2, name2)}
+
+CRITICAL COMPATIBILITY FACTORS:
+1. **Deal Breakers** (can make roommates incompatible):
+   - Smoker vs non-smoker
+   - Has pets vs allergic to pets
+   - Completely opposite sleep schedules (early-riser vs night-owl)
+
+2. **Important Factors** (significant impact):
+   - Sleep time alignment (bedtime/wake time within 1-2 hours is good)
+   - Cleanliness levels (very-clean vs relaxed can cause friction)
+   - Social energy (very-social vs quiet preferences)
+
+3. **Moderate Factors** (some impact):
+   - Guest frequency preferences
+   - One person being "flexible" in any category is a positive
+
+SCORING GUIDE:
+- 90-100: Excellent match - very similar preferences, no conflicts
+- 75-89: Good match - mostly compatible with minor differences
+- 60-74: Moderate match - some differences but workable
+- 40-59: Challenging match - significant differences requiring compromise
+- 0-39: Poor match - major incompatibilities or deal breakers
+
+Return ONLY valid JSON in this exact format:
+{
+  "score": 78,
+  "explanation": "Brief 1-2 sentence overall assessment",
+  "strengths": ["Specific compatible aspect 1", "Specific compatible aspect 2"],
+  "concerns": ["Specific potential issue 1", "Specific potential issue 2"],
+  "tips": ["Practical advice for living together 1", "Practical advice 2"]
+}
+
+Rules:
+- Be honest about incompatibilities but constructive
+- List 2-4 items for strengths, concerns, and tips (can be 0 if not applicable)
+- Keep each item concise (under 15 words)
+- Focus on actionable, specific observations
+- If there are deal breakers (smoking/pets conflicts), score should be below 40
+
+Return ONLY the JSON, no other text.`;
+
+  const message = await getAnthropicClient().messages.create({
+    model: 'claude-3-haiku-20240307',
+    max_tokens: 2000,
+    messages: [{
+      role: 'user',
+      content: prompt
+    }]
+  });
+
+  const responseText = message.content[0].text.trim();
+  const cleanedText = stripMarkdown(responseText);
+
+  console.log('\n🤖 RAW CLAUDE ROOMMATE RESPONSE:');
+  console.log(cleanedText.substring(0, 500));
+  console.log('\n');
+
+  let result;
+  try {
+    result = JSON.parse(cleanedText);
+    console.log('✓ Successfully parsed roommate compatibility JSON');
+    console.log(`📊 Roommate Score: ${result.score}%`);
+    console.log(`💡 ${result.explanation}`);
+  } catch (err) {
+    console.error('❌ JSON PARSE ERROR:', err.message);
+    console.error('Response text:', cleanedText);
+    // Fallback to neutral score
+    result = {
+      score: 50,
+      explanation: "Unable to analyze compatibility at this time.",
+      strengths: [],
+      concerns: [],
+      tips: []
+    };
+  }
+
+  return {
+    score: Math.max(0, Math.min(100, result.score || 50)),
+    explanation: result.explanation || "Compatibility analysis unavailable.",
+    strengths: result.strengths || [],
+    concerns: result.concerns || [],
+    tips: result.tips || []
+  };
+}

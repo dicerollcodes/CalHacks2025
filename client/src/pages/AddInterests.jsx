@@ -120,26 +120,17 @@ export default function AddInterests() {
       return
     }
 
-    setLoading(true)
     setError('')
 
-    try {
-      const response = await completeSignup({
-        ...profileData,
-        privateInterests: validInterests
-      })
-
-      // Save auth token and user data
-      saveAuthToken(response.token)
-      saveUser(response.user)
-
-      // Navigate to their new profile
-      navigate(`/user/${response.user.username}`)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    // Navigate to roommate preferences page with updated profile data
+    navigate('/roommate-preferences', {
+      state: {
+        profileData: {
+          ...profileData,
+          privateInterests: validInterests
+        }
+      }
+    })
   }
 
   return (
@@ -287,7 +278,7 @@ export default function AddInterests() {
               disabled={loading}
               className="w-full px-6 py-4 bg-white text-black font-bold rounded-xl hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
             >
-              {loading ? 'Creating Profile...' : 'Complete Profile'}
+              Next: Roommate Preferences →
             </button>
 
             <p className="text-xs text-white/40 text-center mt-4">

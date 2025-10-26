@@ -851,6 +851,84 @@ function UserProfileNew() {
                       </p>
                     </div>
                   )}
+
+                  {/* Roommate Compatibility Breakdown */}
+                  {matchData.revealDetails && matchData.roommateCompatibility && showChips && (
+                    <div className="mt-8 px-6 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '300ms' }}>
+                      <div
+                        className="p-6 rounded-2xl"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          backdropFilter: 'blur(40px) saturate(180%)',
+                          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)'
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-white/80 font-semibold text-lg flex items-center gap-2">
+                            <span>🏠</span>
+                            Roommate Compatibility
+                          </h3>
+                          <span className={`text-2xl font-black ${
+                            matchData.roommateCompatibility.score >= 80 ? 'text-green-400' :
+                            matchData.roommateCompatibility.score >= 60 ? 'text-yellow-400' : 'text-white/70'
+                          }`}>
+                            {matchData.roommateCompatibility.score}%
+                          </span>
+                        </div>
+
+                        <p className="text-white/60 text-sm mb-4">
+                          {matchData.roommateCompatibility.explanation}
+                        </p>
+
+                        {matchData.roommateCompatibility.strengths && matchData.roommateCompatibility.strengths.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-white/70 text-xs uppercase tracking-wider mb-2">✅ Strengths</h4>
+                            <ul className="space-y-1">
+                              {matchData.roommateCompatibility.strengths.map((strength, idx) => (
+                                <li key={idx} className="text-green-400/80 text-sm flex items-start gap-2">
+                                  <span className="mt-1">•</span>
+                                  <span>{strength}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {matchData.roommateCompatibility.concerns && matchData.roommateCompatibility.concerns.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-white/70 text-xs uppercase tracking-wider mb-2">⚠️ Considerations</h4>
+                            <ul className="space-y-1">
+                              {matchData.roommateCompatibility.concerns.map((concern, idx) => (
+                                <li key={idx} className="text-yellow-400/80 text-sm flex items-start gap-2">
+                                  <span className="mt-1">•</span>
+                                  <span>{concern}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {matchData.roommateCompatibility.tips && matchData.roommateCompatibility.tips.length > 0 && (
+                          <div>
+                            <h4 className="text-white/70 text-xs uppercase tracking-wider mb-2">💡 Tips</h4>
+                            <ul className="space-y-1">
+                              {matchData.roommateCompatibility.tips.map((tip, idx) => (
+                                <li key={idx} className="text-blue-400/80 text-sm flex items-start gap-2">
+                                  <span className="mt-1">•</span>
+                                  <span>{tip}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        <div className="mt-4 pt-4 border-t border-white/10 text-xs text-white/40">
+                          This score represents 40% of your overall compatibility
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
