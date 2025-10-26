@@ -24,6 +24,68 @@ function stripMarkdown(text) {
 }
 
 /**
+ * Calculate interest quality confidence multiplier
+ * Returns a value between 0.5 and 1.0 based on interest quality
+ * Lower quality = lower multiplier = reduced match confidence
+ */
+function calculateInterestQualityMultiplier(interests) {
+  if (!interests || interests.length === 0) {
+    return 0.5; // Minimum penalty for no interests
+  }
+
+  // Very general/broad interest terms that should be penalized
+  const generalTerms = [
+    'sports', 'music', 'art', 'food', 'movies', 'games', 'reading',
+    'tv', 'entertainment', 'outdoors', 'travel', 'fitness', 'technology',
+    'nature', 'animals', 'culture', 'fashion', 'beauty', 'hobbies'
+  ];
+
+  let qualityScore = 1.0;
+
+  // Penalty 1: Low interest count (< 3 interests)
+  if (interests.length === 1) {
+    qualityScore *= 0.6; // 40% penalty for single interest
+  } else if (interests.length === 2) {
+    qualityScore *= 0.8; // 20% penalty for two interests
+  }
+
+  // Penalty 2: Very general interests
+  let generalCount = 0;
+  let shortCount = 0;
+
+  for (const interest of interests) {
+    const lowerInterest = interest.toLowerCase().trim();
+
+    // Check if interest is too general
+    if (generalTerms.some(term => lowerInterest === term || lowerInterest.includes(` ${term} `) || lowerInterest.startsWith(`${term} `) || lowerInterest.endsWith(` ${term}`))) {
+      generalCount++;
+    }
+
+    // Check if interest is too short (< 4 characters)
+    if (interest.trim().length < 4) {
+      shortCount++;
+    }
+  }
+
+  // Apply penalty based on proportion of general interests
+  const generalRatio = generalCount / interests.length;
+  if (generalRatio > 0.5) {
+    qualityScore *= 0.7; // 30% penalty if more than half are general
+  } else if (generalRatio > 0) {
+    qualityScore *= 0.85; // 15% penalty for some general interests
+  }
+
+  // Apply penalty for very short interests
+  const shortRatio = shortCount / interests.length;
+  if (shortRatio > 0.3) {
+    qualityScore *= 0.8; // 20% penalty if more than 30% are too short
+  }
+
+  // Ensure minimum multiplier is 0.5 (max 50% penalty)
+  return Math.max(0.5, qualityScore);
+}
+
+/**
  * Calculate semantic similarity by comparing interest lists
  * Uses INDEX-BASED matching to preserve original interest names
  */
@@ -190,7 +252,27 @@ Return ONLY the JSON, no other text.`;
   }
 
   // Use Claude's overall compatibility score
-  const matchScore = Math.round(result.overallCompatibility || 0);
+  let rawMatchScore = Math.round(result.overallCompatibility || 0);
+
+  // Calculate interest quality penalty for both users
+  const user1QualityMultiplier = calculateInterestQualityMultiplier(userInterests);
+  const user2QualityMultiplier = calculateInterestQualityMultiplier(targetInterests);
+
+  // Use the MINIMUM multiplier (penalize if either user has poor quality)
+  // This ensures we're not confident about matches when either profile is weak
+  const qualityMultiplier = Math.min(user1QualityMultiplier, user2QualityMultiplier);
+
+  // Apply quality penalty to the match score
+  const matchScore = Math.round(rawMatchScore * qualityMultiplier);
+
+  // Log the penalty transparently (not shown to users)
+  if (qualityMultiplier < 1.0) {
+    console.log(`\n⚠️  INTEREST QUALITY PENALTY APPLIED:`);
+    console.log(`   ${userName} quality: ${(user1QualityMultiplier * 100).toFixed(0)}% (${userInterests.length} interests)`);
+    console.log(`   ${targetName} quality: ${(user2QualityMultiplier * 100).toFixed(0)}% (${targetInterests.length} interests)`);
+    console.log(`   Combined multiplier: ${(qualityMultiplier * 100).toFixed(0)}%`);
+    console.log(`   Raw score: ${rawMatchScore}% → Adjusted score: ${matchScore}%\n`);
+  }
 
   // Generate conversation starters if score is high enough
   let conversationStarters = [];
