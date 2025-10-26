@@ -135,8 +135,8 @@ export default function AddInterests() {
       saveAuthToken(response.token)
       saveUser(response.user)
 
-      // Navigate to their new profile
-      navigate(`/user/${response.user.username}`)
+      // Navigate to preferences setup (required before accessing profile)
+      navigate('/set-preferences', { state: { username: response.user.username } })
     } catch (err) {
       setError(err.message)
     } finally {

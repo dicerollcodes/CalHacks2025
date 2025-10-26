@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Auth from './pages/Auth'
 import CreateProfile from './pages/CreateProfile'
 import AddInterests from './pages/AddInterests'
+import SetPreferences from './pages/SetPreferences'
 import Messages from './pages/Messages'
 import Explore from './pages/Explore'
 import Connect from './pages/Connect'
@@ -19,6 +20,7 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/create" element={<CreateProfile />} />
         <Route path="/interests" element={<AddInterests />} />
+        <Route path="/set-preferences" element={<SetPreferences />} />
         <Route path="/user/:username" element={<UserProfileNew />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/explore" element={<Explore />} />
