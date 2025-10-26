@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from './src/models/User.js';
+import School from './src/models/School.js';
 
 dotenv.config();
 
@@ -372,10 +373,24 @@ async function seedDatabase() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
+    // Look up UC Berkeley school ID
+    const berkeley = await School.findOne({ name: 'UC Berkeley' });
+    if (!berkeley) {
+      console.error('❌ UC Berkeley school not found in database!');
+      process.exit(1);
+    }
+    console.log(`Found UC Berkeley: ${berkeley._id}`);
+
+    // Update all students with Berkeley's actual ID
+    const studentsWithSchool = students.map(s => ({
+      ...s,
+      schoolId: berkeley._id
+    }));
+
     const deleteResult = await User.deleteMany({});
     console.log(`Deleted ${deleteResult.deletedCount} existing users`);
 
-    const insertedUsers = await User.insertMany(students);
+    const insertedUsers = await User.insertMany(studentsWithSchool);
     console.log(`Successfully added ${insertedUsers.length} Berkeley students!`);
 
     console.log('\n🎓 Berkeley Students Added:');
