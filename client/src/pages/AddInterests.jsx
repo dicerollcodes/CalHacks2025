@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
 import { completeSignup, saveAuthToken, saveUser, isAuthenticated, getUser } from '../services/auth'
+import { API_BASE_URL } from '../config/api'
 
 export default function AddInterests() {
   const navigate = useNavigate()
@@ -87,7 +88,8 @@ export default function AddInterests() {
   async function regenerateSuggestions() {
     setRegenerating(true)
     try {
-      const response = await fetch('http://localhost:3000/api/users/generate-interest-suggestions', {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/generate-interest-suggestions` : '/api/users/generate-interest-suggestions'
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       })

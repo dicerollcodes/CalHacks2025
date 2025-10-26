@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUser, isAuthenticated } from '../services/auth'
 import Header from '../components/Header'
+import { API_BASE_URL } from '../config/api'
 
 function Preferences() {
   const navigate = useNavigate()
@@ -36,7 +37,8 @@ function Preferences() {
   async function loadPreferences() {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:3000/api/users/${userId}`)
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${userId}` : `/api/users/${userId}`
+      const response = await fetch(apiUrl)
 
       if (!response.ok) {
         throw new Error('Failed to load user data')
@@ -68,7 +70,8 @@ function Preferences() {
   async function handleSave() {
     setSaving(true)
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${userId}/preferences`, {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${userId}/preferences` : `/api/users/${userId}/preferences`
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

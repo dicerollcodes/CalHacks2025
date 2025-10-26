@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
 import { isAuthenticated, getUser } from '../services/auth'
+import { API_BASE_URL } from '../config/api'
 
 export default function CreateProfile() {
   const navigate = useNavigate()
@@ -38,7 +39,8 @@ export default function CreateProfile() {
     const checkUsername = async () => {
       setCheckingUsername(true)
       try {
-        const response = await fetch(`http://localhost:3000/api/users/check-username/${username}`)
+        const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/check-username/${username}` : `/api/users/check-username/${username}`
+        const response = await fetch(apiUrl)
         const data = await response.json()
         setUsernameAvailable(data.available)
       } catch (err) {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FaPlus, FaMinus } from 'react-icons/fa'
 import { getUser, isAuthenticated } from '../services/auth'
 import Header from '../components/Header'
+import { API_BASE_URL } from '../config/api'
 
 function Explore() {
   const navigate = useNavigate()
@@ -29,7 +30,8 @@ function Explore() {
   async function loadInterests() {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:3000/api/users/${userId}/curated-interests`, {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${userId}/curated-interests` : `/api/users/${userId}/curated-interests`
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -68,7 +70,8 @@ function Explore() {
         : [...currentInterests, interestText]
 
       // Update on server
-      const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${userId}` : `/api/users/${userId}`
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { sendVerificationCode, verifyCode, login, verifyLogin, saveAuthToken, saveUser, isAuthenticated, getUser } from '../services/auth'
+import { API_BASE_URL } from '../config/api'
 
 export default function Auth() {
   const navigate = useNavigate()
@@ -32,7 +33,8 @@ export default function Auth() {
 
     try {
       // First check if user exists
-      const checkResponse = await fetch(`http://localhost:3000/api/auth/check-user`, {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/auth/check-user` : '/api/auth/check-user'
+      const checkResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

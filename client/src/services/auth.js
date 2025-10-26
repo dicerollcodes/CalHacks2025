@@ -1,4 +1,7 @@
-const API_URL = 'http://localhost:3000/api';
+import { API_BASE_URL } from '../config/api.js'
+
+// In development, use relative URLs for Vite proxy. In production, use full URL.
+const API_URL = import.meta.env.MODE === 'production' ? API_BASE_URL : '/api';
 
 /**
  * Send verification code to email
