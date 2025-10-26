@@ -196,7 +196,7 @@ Calculate overallCompatibility (0-100) based on:
 Return ONLY the JSON, no other text.`;
 
   const message = await getAnthropicClient().messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 3000,
     messages: [{
       role: 'user',
@@ -331,7 +331,7 @@ Create starters that:
 Return as JSON array of strings: ["starter1", "starter2", "starter3"]`;
 
   const message = await getAnthropicClient().messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 1000,
     messages: [{
       role: 'user',
