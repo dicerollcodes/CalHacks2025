@@ -25,59 +25,32 @@ function stripMarkdown(text) {
 
 /**
  * Calculate interest quality confidence multiplier
- * Returns a value between 0.75 and 1.0 based on interest quality
+ * Returns a value between 0.85 and 1.0 based on interest quality
  * Lower quality = lower multiplier = slightly reduced match confidence
  */
 function calculateInterestQualityMultiplier(interests) {
   if (!interests || interests.length === 0) {
-    return 0.75; // Minimum penalty for no interests
+    return 0.85; // Minimum penalty for no interests
   }
 
   // Filter out invalid interests (too short, likely junk data)
   const validInterests = interests.filter(i => i && i.trim().length >= 3);
 
   if (validInterests.length === 0) {
-    return 0.75; // All interests are junk
+    return 0.85; // All interests are junk
   }
-
-  // Very general/broad interest terms that should be slightly penalized
-  const generalTerms = [
-    'sports', 'music', 'art', 'food', 'movies', 'games', 'reading',
-    'tv', 'entertainment', 'outdoors', 'travel', 'fitness', 'technology',
-    'nature', 'animals', 'culture', 'fashion', 'beauty', 'hobbies'
-  ];
 
   let qualityScore = 1.0;
 
-  // Penalty 1: Low interest count (< 3 interests) - VERY LIGHT penalties
+  // Only penalty: Low interest count (< 3 interests) - VERY LIGHT penalties
   if (validInterests.length === 1) {
     qualityScore *= 0.90; // 10% penalty for single interest
   } else if (validInterests.length === 2) {
     qualityScore *= 0.95; // 5% penalty for two interests
   }
 
-  // Penalty 2: Very general interests - VERY LIGHT penalties
-  let generalCount = 0;
-
-  for (const interest of validInterests) {
-    const lowerInterest = interest.toLowerCase().trim();
-
-    // Check if interest is EXACTLY a general term (not just containing it)
-    if (generalTerms.includes(lowerInterest)) {
-      generalCount++;
-    }
-  }
-
-  // Apply penalty based on proportion of general interests
-  const generalRatio = generalCount / validInterests.length;
-  if (generalRatio >= 1.0) {
-    qualityScore *= 0.90; // 10% penalty if ALL are general
-  } else if (generalRatio > 0.5) {
-    qualityScore *= 0.95; // 5% penalty if more than half are general
-  }
-
-  // Ensure minimum multiplier is 0.75 (max 25% penalty)
-  return Math.max(0.75, qualityScore);
+  // Ensure minimum multiplier is 0.85 (max 15% penalty)
+  return Math.max(0.85, qualityScore);
 }
 
 /**
