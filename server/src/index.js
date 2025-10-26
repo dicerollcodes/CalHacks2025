@@ -16,6 +16,7 @@ import matchRouter from './routes/match.js';
 import recommendationsRouter from './routes/recommendations.js';
 import messagesRouter from './routes/messages.js';
 import connectRouter from './routes/connect.js';
+import schoolsRouter from './routes/schools.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -46,6 +47,7 @@ app.use('/api/match', matchRouter);
 app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/connect', connectRouter);
+app.use('/api/schools', schoolsRouter);
 
 // Health check
 app.get('/health', (req, res) => {
