@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import User from './src/models/User.js';
 
-const User = require('./src/models/User.js').default || require('./src/models/User.js');
+dotenv.config();
 
 const students = [
   {
