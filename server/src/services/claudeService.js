@@ -25,15 +25,22 @@ function stripMarkdown(text) {
 
 /**
  * Calculate interest quality confidence multiplier
- * Returns a value between 0.5 and 1.0 based on interest quality
- * Lower quality = lower multiplier = reduced match confidence
+ * Returns a value between 0.75 and 1.0 based on interest quality
+ * Lower quality = lower multiplier = slightly reduced match confidence
  */
 function calculateInterestQualityMultiplier(interests) {
   if (!interests || interests.length === 0) {
-    return 0.5; // Minimum penalty for no interests
+    return 0.75; // Minimum penalty for no interests
   }
 
-  // Very general/broad interest terms that should be penalized
+  // Filter out invalid interests (too short, likely junk data)
+  const validInterests = interests.filter(i => i && i.trim().length >= 3);
+
+  if (validInterests.length === 0) {
+    return 0.75; // All interests are junk
+  }
+
+  // Very general/broad interest terms that should be slightly penalized
   const generalTerms = [
     'sports', 'music', 'art', 'food', 'movies', 'games', 'reading',
     'tv', 'entertainment', 'outdoors', 'travel', 'fitness', 'technology',
@@ -42,47 +49,35 @@ function calculateInterestQualityMultiplier(interests) {
 
   let qualityScore = 1.0;
 
-  // Penalty 1: Low interest count (< 3 interests)
-  if (interests.length === 1) {
-    qualityScore *= 0.6; // 40% penalty for single interest
-  } else if (interests.length === 2) {
-    qualityScore *= 0.8; // 20% penalty for two interests
+  // Penalty 1: Low interest count (< 3 interests) - REDUCED penalties
+  if (validInterests.length === 1) {
+    qualityScore *= 0.85; // 15% penalty for single interest
+  } else if (validInterests.length === 2) {
+    qualityScore *= 0.92; // 8% penalty for two interests
   }
 
-  // Penalty 2: Very general interests
+  // Penalty 2: Very general interests - REDUCED penalties
   let generalCount = 0;
-  let shortCount = 0;
 
-  for (const interest of interests) {
+  for (const interest of validInterests) {
     const lowerInterest = interest.toLowerCase().trim();
 
-    // Check if interest is too general
-    if (generalTerms.some(term => lowerInterest === term || lowerInterest.includes(` ${term} `) || lowerInterest.startsWith(`${term} `) || lowerInterest.endsWith(` ${term}`))) {
+    // Check if interest is EXACTLY a general term (not just containing it)
+    if (generalTerms.includes(lowerInterest)) {
       generalCount++;
-    }
-
-    // Check if interest is too short (< 4 characters)
-    if (interest.trim().length < 4) {
-      shortCount++;
     }
   }
 
   // Apply penalty based on proportion of general interests
-  const generalRatio = generalCount / interests.length;
-  if (generalRatio > 0.5) {
-    qualityScore *= 0.7; // 30% penalty if more than half are general
-  } else if (generalRatio > 0) {
-    qualityScore *= 0.85; // 15% penalty for some general interests
+  const generalRatio = generalCount / validInterests.length;
+  if (generalRatio >= 1.0) {
+    qualityScore *= 0.85; // 15% penalty if ALL are general
+  } else if (generalRatio > 0.5) {
+    qualityScore *= 0.92; // 8% penalty if more than half are general
   }
 
-  // Apply penalty for very short interests
-  const shortRatio = shortCount / interests.length;
-  if (shortRatio > 0.3) {
-    qualityScore *= 0.8; // 20% penalty if more than 30% are too short
-  }
-
-  // Ensure minimum multiplier is 0.5 (max 50% penalty)
-  return Math.max(0.5, qualityScore);
+  // Ensure minimum multiplier is 0.75 (max 25% penalty)
+  return Math.max(0.75, qualityScore);
 }
 
 /**
@@ -90,9 +85,18 @@ function calculateInterestQualityMultiplier(interests) {
  * Uses INDEX-BASED matching to preserve original interest names
  */
 export async function calculateMatch(userInterests, targetInterests, userName, targetName) {
+  // Filter out junk interests (too short, whitespace only, etc)
+  const cleanUserInterests = (userInterests || [])
+    .filter(i => i && typeof i === 'string' && i.trim().length >= 3)
+    .map(i => i.trim());
+
+  const cleanTargetInterests = (targetInterests || [])
+    .filter(i => i && typeof i === 'string' && i.trim().length >= 3)
+    .map(i => i.trim());
+
   // Handle empty interests immediately
-  if (!userInterests || userInterests.length === 0 || !targetInterests || targetInterests.length === 0) {
-    console.log(`⚠️  Empty interests detected - returning 0% match`);
+  if (cleanUserInterests.length === 0 || cleanTargetInterests.length === 0) {
+    console.log(`⚠️  Empty/invalid interests detected - returning 0% match`);
     return {
       matchScore: 0,
       sharedInterests: [],
@@ -101,7 +105,7 @@ export async function calculateMatch(userInterests, targetInterests, userName, t
     };
   }
 
-  const cacheKey = JSON.stringify([userInterests.sort(), targetInterests.sort(), userName, targetName]);
+  const cacheKey = JSON.stringify([cleanUserInterests.sort(), cleanTargetInterests.sort(), userName, targetName]);
 
   if (similarityCache.has(cacheKey)) {
     console.log(`💾 Cache hit for ${userName} ↔ ${targetName}`);
@@ -109,12 +113,12 @@ export async function calculateMatch(userInterests, targetInterests, userName, t
   }
 
   console.log(`\n🔍 Comparing interests for ${userName} ↔ ${targetName}`);
-  console.log(`${userName}: ${JSON.stringify(userInterests)}`);
-  console.log(`${targetName}: ${JSON.stringify(targetInterests)}\n`);
+  console.log(`${userName}: ${JSON.stringify(cleanUserInterests)}`);
+  console.log(`${targetName}: ${JSON.stringify(cleanTargetInterests)}\n`);
 
   // Create indexed lists for Claude
-  const user1Indexed = userInterests.map((interest, idx) => `[${idx}] ${interest}`);
-  const user2Indexed = targetInterests.map((interest, idx) => `[${idx}] ${interest}`);
+  const user1Indexed = cleanUserInterests.map((interest, idx) => `[${idx}] ${interest}`);
+  const user2Indexed = cleanTargetInterests.map((interest, idx) => `[${idx}] ${interest}`);
 
   const prompt = `You are a semantic matching expert. Compare these two interest lists and find all meaningful matches.
 
@@ -225,8 +229,8 @@ Return ONLY the JSON, no other text.`;
   const relatedInterests = [];
 
   for (const match of matches) {
-    const user1Interest = userInterests[match.user1Index];
-    const user2Interest = targetInterests[match.user2Index];
+    const user1Interest = cleanUserInterests[match.user1Index];
+    const user2Interest = cleanTargetInterests[match.user2Index];
 
     if (!user1Interest || !user2Interest) {
       console.warn(`⚠️  Invalid indices: [${match.user1Index}] or [${match.user2Index}]`);
@@ -255,8 +259,8 @@ Return ONLY the JSON, no other text.`;
   let rawMatchScore = Math.round(result.overallCompatibility || 0);
 
   // Calculate interest quality penalty for both users
-  const user1QualityMultiplier = calculateInterestQualityMultiplier(userInterests);
-  const user2QualityMultiplier = calculateInterestQualityMultiplier(targetInterests);
+  const user1QualityMultiplier = calculateInterestQualityMultiplier(cleanUserInterests);
+  const user2QualityMultiplier = calculateInterestQualityMultiplier(cleanTargetInterests);
 
   // Use the MINIMUM multiplier (penalize if either user has poor quality)
   // This ensures we're not confident about matches when either profile is weak
@@ -268,8 +272,8 @@ Return ONLY the JSON, no other text.`;
   // Log the penalty transparently (not shown to users)
   if (qualityMultiplier < 1.0) {
     console.log(`\n⚠️  INTEREST QUALITY PENALTY APPLIED:`);
-    console.log(`   ${userName} quality: ${(user1QualityMultiplier * 100).toFixed(0)}% (${userInterests.length} interests)`);
-    console.log(`   ${targetName} quality: ${(user2QualityMultiplier * 100).toFixed(0)}% (${targetInterests.length} interests)`);
+    console.log(`   ${userName} quality: ${(user1QualityMultiplier * 100).toFixed(0)}% (${cleanUserInterests.length} interests)`);
+    console.log(`   ${targetName} quality: ${(user2QualityMultiplier * 100).toFixed(0)}% (${cleanTargetInterests.length} interests)`);
     console.log(`   Combined multiplier: ${(qualityMultiplier * 100).toFixed(0)}%`);
     console.log(`   Raw score: ${rawMatchScore}% → Adjusted score: ${matchScore}%\n`);
   }
