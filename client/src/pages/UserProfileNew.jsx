@@ -58,7 +58,8 @@ function UserProfileNew() {
   const [apiComplete, setApiComplete] = useState(false)
 
   // Developer Mode
-  const [devMode, setDevMode] = useState(false)
+  const [devModeEnabled, setDevModeEnabled] = useState(false) // Backend controls if dev mode is available
+  const [devMode, setDevMode] = useState(false) // User toggle for showing/hiding panel
   const [privateInterests, setPrivateInterests] = useState(null)
 
   // Use ref to track apiComplete for interval (avoids React closure issue)
@@ -93,6 +94,22 @@ function UserProfileNew() {
     // Load new user
     loadUser()
   }, [username])
+
+  // Check if developer mode is enabled (controlled by backend)
+  useEffect(() => {
+    async function checkDevMode() {
+      try {
+        const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/auth/dev-mode` : '/api/auth/dev-mode'
+        const response = await fetch(apiUrl)
+        const data = await response.json()
+        setDevModeEnabled(data.enabled)
+      } catch (err) {
+        // Dev mode not available (expected in production)
+        console.log('Dev mode check failed (expected in production)')
+      }
+    }
+    checkDevMode()
+  }, [])
 
   async function loadUser() {
     try {
@@ -584,13 +601,15 @@ function UserProfileNew() {
             </div>
           )}
 
-          {/* Developer Mode Toggle (visible on all profiles) */}
-          <button
-            onClick={toggleDevMode}
-            className="px-6 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-full transition-all text-white text-sm font-medium"
-          >
-            {devMode ? '👁️ Hide Private Interests' : '🔍 Developer Mode'}
-          </button>
+          {/* Developer Mode Toggle (only visible when enabled by backend) */}
+          {devModeEnabled && (
+            <button
+              onClick={toggleDevMode}
+              className="px-6 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-full transition-all text-white text-sm font-medium"
+            >
+              {devMode ? '👁️ Hide Private Interests' : '🔍 Developer Mode'}
+            </button>
+          )}
 
           {/* Developer Mode Panel - Show Private Interests */}
           {devMode && privateInterests && (
