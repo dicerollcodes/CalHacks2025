@@ -11,6 +11,14 @@ export async function getUser(shareableId) {
   return response.json();
 }
 
+export async function getPrivateInterests(username) {
+  const response = await fetch(`${API_BASE}/users/${username}/private-interests`);
+  if (!response.ok) {
+    throw new Error('Failed to get private interests');
+  }
+  return response.json();
+}
+
 export async function calculateMatch(viewerId, targetUserId) {
   const response = await fetch(`${API_BASE}/match`, {
     method: 'POST',

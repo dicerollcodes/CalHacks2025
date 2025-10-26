@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
-import { getUser, calculateMatch } from '../services/api'
+import { getUser, calculateMatch, getPrivateInterests } from '../services/api'
 import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
 import { API_BASE_URL } from '../config/api'
 import IceCube from '../components/IceCube'
@@ -56,6 +56,10 @@ function UserProfileNew() {
   const [showScore, setShowScore] = useState(false)
   const [showChips, setShowChips] = useState(false)
   const [apiComplete, setApiComplete] = useState(false)
+
+  // Developer Mode
+  const [devMode, setDevMode] = useState(false)
+  const [privateInterests, setPrivateInterests] = useState(null)
 
   // Count-up animations for scores (rounded to integers for main display)
   const animatedFriendScore = useCountUp(
@@ -113,10 +117,14 @@ function UserProfileNew() {
 
     try {
       // Start API call immediately
+      console.log('🎯 Starting match calculation...', { viewer: loggedInUser.username, target: username })
       const response = await calculateMatch(loggedInUser.username, username)
+      console.log('✅ Match calculation complete:', response)
       setMatchData(response.match)
       setApiComplete(true)
+      console.log('✅ apiComplete set to true')
     } catch (err) {
+      console.error('❌ Match calculation failed:', err)
       alert('Failed to calculate match: ' + err.message)
       setCubeShattered(false)
       setCalculating(false)
@@ -126,6 +134,7 @@ function UserProfileNew() {
   }
 
   async function handleAnimationComplete() {
+    console.log('🎬 Animation complete, waiting for API...')
     setAnimationComplete(true)
 
     // Wait for API if not done yet (with 10 second timeout)
@@ -134,6 +143,7 @@ function UserProfileNew() {
     const checkApi = setInterval(() => {
       attempts++
       if (apiComplete) {
+        console.log('✅ API complete! Showing results...')
         clearInterval(checkApi)
         // Hide ice cube and show score
         setTimeout(() => {
@@ -144,11 +154,14 @@ function UserProfileNew() {
         }, 200)
       } else if (attempts >= maxAttempts) {
         // Timeout - API took too long
+        console.error('⏱️ Timeout: API took too long')
         clearInterval(checkApi)
         alert('The match calculation is taking longer than expected. Please try again.')
         setCubeShattered(false)
         setCalculating(false)
         setAnimationComplete(false)
+      } else if (attempts % 20 === 0) {
+        console.log(`⏳ Still waiting for API... (${attempts * 50}ms)`)
       }
     }, 50)
   }
@@ -156,6 +169,21 @@ function UserProfileNew() {
   function handleScoreComplete() {
     // Called when score animation finishes
     setShowChips(true)
+  }
+
+  async function toggleDevMode() {
+    if (!devMode && !privateInterests) {
+      // Fetch private interests when enabling dev mode for the first time
+      try {
+        const response = await getPrivateInterests(username)
+        setPrivateInterests(response.privateInterests || [])
+      } catch (err) {
+        console.error('Failed to fetch private interests:', err)
+        alert('Failed to load private interests')
+        return
+      }
+    }
+    setDevMode(!devMode)
   }
 
   async function startEditMode() {
@@ -533,7 +561,7 @@ function UserProfileNew() {
 
           {/* Edit Buttons (only shown on own profile) */}
           {isOwnProfile && !isEditMode && (
-            <div className="flex gap-3 justify-center mb-4">
+            <div className="flex gap-3 justify-center mb-4 flex-wrap">
               <button
                 onClick={startEditMode}
                 className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full transition-all text-white text-sm font-medium"
@@ -546,6 +574,36 @@ function UserProfileNew() {
               >
                 🏠 Roommate Preferences
               </button>
+            </div>
+          )}
+
+          {/* Developer Mode Toggle (visible on all profiles) */}
+          <button
+            onClick={toggleDevMode}
+            className="px-6 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-full transition-all text-white text-sm font-medium"
+          >
+            {devMode ? '👁️ Hide Private Interests' : '🔍 Developer Mode'}
+          </button>
+
+          {/* Developer Mode Panel - Show Private Interests */}
+          {devMode && privateInterests && (
+            <div className="mt-6 p-6 bg-yellow-900/20 border border-yellow-500/30 rounded-2xl">
+              <h3 className="text-yellow-300 text-sm font-bold uppercase tracking-wider mb-3">
+                🔐 Private Interests (Developer View)
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {privateInterests.map((interest, idx) => (
+                  <span
+                    key={idx}
+                    className="px-4 py-2 bg-yellow-600/30 border border-yellow-500/40 rounded-full text-sm text-yellow-100"
+                  >
+                    {interest}
+                  </span>
+                ))}
+              </div>
+              {privateInterests.length === 0 && (
+                <p className="text-yellow-300/60 text-sm">No private interests set</p>
+              )}
             </div>
           )}
 
