@@ -121,14 +121,18 @@ function UserProfileNew() {
       setCubeShattered(false)
       setCalculating(false)
       setApiComplete(false)
+      setAnimationComplete(false)
     }
   }
 
   async function handleAnimationComplete() {
     setAnimationComplete(true)
 
-    // Wait for API if not done yet
+    // Wait for API if not done yet (with 10 second timeout)
+    let attempts = 0
+    const maxAttempts = 200 // 10 seconds (50ms * 200)
     const checkApi = setInterval(() => {
+      attempts++
       if (apiComplete) {
         clearInterval(checkApi)
         // Hide ice cube and show score
@@ -138,6 +142,13 @@ function UserProfileNew() {
         setTimeout(() => {
           setShowScore(true)
         }, 200)
+      } else if (attempts >= maxAttempts) {
+        // Timeout - API took too long
+        clearInterval(checkApi)
+        alert('The match calculation is taking longer than expected. Please try again.')
+        setCubeShattered(false)
+        setCalculating(false)
+        setAnimationComplete(false)
       }
     }, 50)
   }
