@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { FaInstagram, FaDiscord, FaTwitter, FaLinkedin } from 'react-icons/fa'
 import { getUser, calculateMatch } from '../services/api'
 import { getUser as getLoggedInUser, isAuthenticated } from '../services/auth'
+import { API_BASE_URL } from '../config/api'
 import IceCube from '../components/IceCube'
 import MatchRevealNew from '../components/MatchRevealNew'
 import Header from '../components/Header'
@@ -149,7 +150,8 @@ function UserProfileNew() {
 
     // Fetch private interests
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${user.username}/private-interests`)
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${user.username}/private-interests` : `/api/users/${user.username}/private-interests`
+      const response = await fetch(apiUrl)
       const data = await response.json()
       if (data.privateInterests) {
         setEditedInterests(data.privateInterests)
@@ -233,7 +235,8 @@ function UserProfileNew() {
         finalInterests.push(trimmedInput)
       }
 
-      const response = await fetch(`http://localhost:3000/api/users/${user.username}`, {
+      const apiUrl = import.meta.env.MODE === 'production' ? `${API_BASE_URL}/users/${user.username}` : `/api/users/${user.username}`
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
